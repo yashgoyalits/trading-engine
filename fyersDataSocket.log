@@ -1,0 +1,20 @@
+{"level":"ERROR","location":"[on_positions:195] order_ws","message":"Event loop is closed","timestamp":"2025-09-02 12:08:50,986+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Event loop is closed","timestamp":"2025-09-02 12:08:51,125+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"Connection to remote host was lost.","timestamp":"2025-09-02 13:45:23,258+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Connection to remote host was lost.","timestamp":"2025-09-02 13:45:23,952+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"Connection to remote host was lost.","timestamp":"2025-09-02 13:48:37,310+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Connection to remote host was lost.","timestamp":"2025-09-02 13:48:37,310+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[Errno 11001] getaddrinfo failed","timestamp":"2025-09-02 14:12:55,414+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"[Errno 11001] getaddrinfo failed","timestamp":"2025-09-02 14:12:55,461+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"[Errno 11001] getaddrinfo failed","timestamp":"2025-09-02 14:13:11,590+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[Errno 11001] getaddrinfo failed","timestamp":"2025-09-02 14:13:11,600+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[on_positions:195] order_ws","message":"Event loop is closed","timestamp":"2025-09-03 09:20:38,681+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Event loop is closed","timestamp":"2025-09-03 09:20:39,002+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[on_positions:195] order_ws","message":"Event loop is closed","timestamp":"2025-09-03 09:23:24,500+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Event loop is closed","timestamp":"2025-09-03 09:23:24,518+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[on_positions:195] order_ws","message":"Event loop is closed","timestamp":"2025-09-04 09:18:50,676+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Event loop is closed","timestamp":"2025-09-04 09:18:50,909+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[on_positions:195] order_ws","message":"Event loop is closed","timestamp":"2025-09-04 10:32:20,360+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Event loop is closed","timestamp":"2025-09-04 10:32:20,560+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[on_positions:195] order_ws","message":"Event loop is closed","timestamp":"2025-09-04 12:59:59,774+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[On_error:261] order_ws","message":"Event loop is closed","timestamp":"2025-09-04 13:00:00,339+0530","service":"FyersDataSocket"}

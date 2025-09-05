@@ -1,0 +1,74 @@
+===== Running at Wed Sep  3 07:44:02 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:08:02 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:08:03 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:08:03 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:08:04 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:08:04 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:12:07 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:21:09 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:23:09 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:23:09 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:23:09 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:23:10 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:23:10 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:30:09 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:30:09 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:30:10 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:30:10 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:30:11 UTC 2025 =====
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied.
+See 'docker run --help'.
+===== Running at Wed Sep  3 08:31:41 UTC 2025 =====
+/opt/venv/lib/python3.12/site-packages/fyers_apiv3/FyersWebsocket/order_ws.py:2: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_filename
+[2025-09-03 14:01:46,091] [INFO] Websocket connected
+[2025-09-03 14:01:46,103] [INFO] Websocket connected
+General : {'code': 1605, 'message': 'Successfully subscribed', 's': 'ok'}
+[2025-09-03 14:02:30,817] [INFO] [Candle] 2025-09-03 14:02:00 | NSE:NIFTY50-INDEX | open: 24650.5, high: 24650.5, low: 24642.35, close: 24646.6
+[2025-09-03 14:02:32,223] [INFO] [Position OPEN] NSE:IDEA-EQ, Qty: 1
+[2025-09-03 14:02:34,680] [INFO] Order placed with ID: 25090300306211-BO-1
+[2025-09-03 14:02:35,233] [INFO] [Trailing SL Update] NSE:NIFTY2590924650PE | Time: 1756888353 New Stop: 6.6499999999999995 (breakeven) LTP: 101.75
+[2025-09-03 14:02:35,624] [INFO] [Trailing SL Update] NSE:NIFTY2590924650PE | Time: 1756888354 New Stop: 6.75 (1st trail locked profit) LTP: 101.85
+[2025-09-03 14:03:15,776] [INFO] [Position CLOSED] NSE:IDEA-EQ
+[2025-09-03 14:03:15,778] [INFO] Realized P/L: -0.11000000000000654
+[2025-09-03 14:03:16,234] [INFO] [strategy_one] Trade 1 closed
+[2025-09-03 14:03:31,209] [INFO] max trade reached
+[2025-09-03 14:03:31,333] [INFO] Strategy1 strategy ending...................
+[2025-09-03 14:03:31,398] [INFO] [Data WS]
+[2025-09-03 14:03:36,104] [INFO] [Order WS] Closed cleanly.
+[2025-09-03 14:03:36,105] [INFO] [Main] Program terminated.
+===== Finished at Wed Sep  3 08:33:36 UTC 2025 =====

@@ -1,0 +1,3 @@
+fyers_apiv3==3.1.7
+psutil==7.0.0
+python-dotenv==1.1.1

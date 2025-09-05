@@ -1,0 +1,167 @@
+[2025-09-05 09:34:47,200] [INFO] Websocket connected
+[2025-09-05 09:34:47,299] [INFO] Websocket connected
+[2025-09-05 09:35:00,504] [INFO] first candle
+[2025-09-05 09:35:30,541] [INFO] [Candle] 2025-09-05 09:35:00 | NSE:NIFTY50-INDEX | open: 24812.05, high: 24812.05, low: 24804.0, close: 24804.65
+[2025-09-05 09:35:37,704] [INFO] Order placed with ID: 25090500040413-BO-1
+[2025-09-05 09:35:38,179] [INFO] [Trailing SL Update] NSE:NIFTY2590924800PE | Time: 1757045137 New Stop: 6.779999999999999 (breakeven) LTP: 72.95
+[2025-09-05 09:35:39,465] [INFO] [Trailing SL Update] NSE:NIFTY2590924800PE | Time: 1757045138 New Stop: 6.88 (1st trail locked profit) LTP: 74.15
+[2025-09-05 09:37:14,754] [INFO] Websocket connected
+[2025-09-05 09:37:14,764] [INFO] Websocket connected
+[2025-09-05 09:37:30,380] [INFO] first candle
+[2025-09-05 09:38:00,401] [INFO] [Candle] 2025-09-05 09:37:30 | NSE:NIFTY50-INDEX | open: 24783.2, high: 24791.5, low: 24782.85, close: 24791.5
+[2025-09-05 09:38:01,557] [INFO] [Position OPEN] NSE:IDEA-EQ, Qty: 1
+[2025-09-05 09:38:02,629] [INFO] Order placed with ID: 25090500045464-BO-1
+[2025-09-05 09:38:03,180] [INFO] [Trailing SL Update] NSE:NIFTY2590924800CE | Time: 1757045282 New Stop: 6.77 (breakeven) LTP: 89.2
+[2025-09-05 09:38:03,901] [INFO] [Trailing SL Update] NSE:NIFTY2590924800CE | Time: 1757045283 New Stop: 6.87 (1st trail locked profit) LTP: 88.1
+[2025-09-05 09:38:28,372] [INFO] [Position CLOSED] NSE:IDEA-EQ
+[2025-09-05 09:38:28,372] [INFO] Realized P/L: -0.060000000000002274
+[2025-09-05 09:38:28,705] [INFO] [strategy_one] Trade 1 closed
+[2025-09-05 09:38:30,701] [INFO] max trade reached
+[2025-09-05 09:38:30,733] [INFO] [Strategy 1] ended
+[2025-09-05 09:38:30,734] [INFO] [Data WS Closed] {'code': 200, 'message': 'Connection Closed', 's': 'ok'}
+[2025-09-05 09:38:34,775] [INFO] [Order WS] Closed cleanly.
+[2025-09-05 09:38:34,775] [INFO] [Main] Program terminated.
+[2025-09-05 09:40:48,368] [INFO] Websocket connected
+[2025-09-05 09:40:48,372] [INFO] Websocket connected
+[2025-09-05 09:41:00,580] [INFO] first candle
+[2025-09-05 09:41:30,803] [INFO] [Candle] 2025-09-05 09:41:00 | NSE:NIFTY50-INDEX | open: 24779.85, high: 24780.85, low: 24777.2, close: 24780.3
+[2025-09-05 09:41:31,925] [INFO] Websocket connected
+[2025-09-05 09:41:31,972] [INFO] Websocket connected
+[2025-09-05 09:42:00,343] [INFO] first candle
+[2025-09-05 09:42:00,846] [INFO] [Candle] 2025-09-05 09:41:30 | NSE:NIFTY50-INDEX | open: 24780.55, high: 24781.55, low: 24778.75, close: 24781.2
+[2025-09-05 09:42:30,231] [INFO] [Candle] 2025-09-05 09:42:00 | NSE:NIFTY50-INDEX | open: 24780.25, high: 24781.05, low: 24778.6, close: 24780.8
+[2025-09-05 09:42:30,362] [INFO] [Candle] 2025-09-05 09:42:00 | NSE:NIFTY50-INDEX | open: 24780.25, high: 24781.05, low: 24778.6, close: 24780.8
+[2025-09-05 09:43:00,383] [INFO] [Candle] 2025-09-05 09:42:30 | NSE:NIFTY50-INDEX | open: 24781.15, high: 24781.7, low: 24778.8, close: 24781.7
+[2025-09-05 09:43:00,874] [INFO] [Candle] 2025-09-05 09:42:30 | NSE:NIFTY50-INDEX | open: 24781.15, high: 24781.7, low: 24778.8, close: 24781.7
+[2025-09-05 09:43:30,406] [INFO] [Candle] 2025-09-05 09:43:00 | NSE:NIFTY50-INDEX | open: 24781.15, high: 24782.65, low: 24779.5, close: 24781.4
+[2025-09-05 09:43:30,999] [INFO] [Candle] 2025-09-05 09:43:00 | NSE:NIFTY50-INDEX | open: 24781.15, high: 24782.65, low: 24779.5, close: 24781.4
+[2025-09-05 09:44:00,051] [INFO] [Candle] 2025-09-05 09:43:30 | NSE:NIFTY50-INDEX | open: 24780.55, high: 24783.2, low: 24780.55, close: 24782.35
+[2025-09-05 09:44:00,432] [INFO] [Candle] 2025-09-05 09:43:30 | NSE:NIFTY50-INDEX | open: 24780.55, high: 24783.2, low: 24780.55, close: 24782.35
+[2025-09-05 09:44:30,090] [INFO] [Candle] 2025-09-05 09:44:00 | NSE:NIFTY50-INDEX | open: 24782.5, high: 24783.0, low: 24779.9, close: 24780.05
+[2025-09-05 09:44:30,335] [INFO] [Candle] 2025-09-05 09:44:00 | NSE:NIFTY50-INDEX | open: 24782.5, high: 24783.0, low: 24779.9, close: 24780.05
+[2025-09-05 09:45:00,118] [INFO] [Candle] 2025-09-05 09:44:30 | NSE:NIFTY50-INDEX | open: 24779.05, high: 24779.5, low: 24777.45, close: 24779.3
+[2025-09-05 09:45:00,478] [INFO] [Candle] 2025-09-05 09:44:30 | NSE:NIFTY50-INDEX | open: 24779.05, high: 24779.5, low: 24777.45, close: 24779.3
+[2025-09-05 09:45:30,147] [INFO] [Candle] 2025-09-05 09:45:00 | NSE:NIFTY50-INDEX | open: 24778.3, high: 24779.3, low: 24776.3, close: 24778.3
+[2025-09-05 04:59:09,969] [INFO] Websocket connected
+[2025-09-05 04:59:09,992] [INFO] Websocket connected
+[2025-09-05 04:59:30,649] [INFO] first candle
+[2025-09-05 05:00:00,799] [INFO] [Candle] 2025-09-05 10:29:30 | NSE:NIFTY50-INDEX | open: 24730.9, high: 24732.9, low: 24721.75, close: 24721.75
+[2025-09-05 05:00:30,912] [INFO] [Candle] 2025-09-05 10:30:00 | NSE:NIFTY50-INDEX | open: 24721.3, high: 24730.1, low: 24719.05, close: 24723.0
+[2025-09-05 05:01:00,639] [INFO] [Candle] 2025-09-05 10:30:30 | NSE:NIFTY50-INDEX | open: 24724.05, high: 24726.3, low: 24720.0, close: 24720.5
+[2025-09-05 05:01:30,771] [INFO] [Candle] 2025-09-05 10:31:00 | NSE:NIFTY50-INDEX | open: 24719.1, high: 24719.1, low: 24706.55, close: 24706.55
+[2025-09-05 05:01:32,003] [INFO] Order placed with ID: 25090500131304-BO-1
+[2025-09-05 05:01:32,280] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757048491 New Stop: 6.909999999999999 (breakeven) LTP: 90.4
+[2025-09-05 05:01:32,751] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757048492 New Stop: 7.01 (1st trail locked profit) LTP: 91.3
+[2025-09-05 05:03:21,204] [INFO] Websocket connected
+[2025-09-05 05:03:21,223] [INFO] Websocket connected
+[2025-09-05 10:34:51,127] [INFO] Websocket connected
+[2025-09-05 10:34:51,140] [INFO] Websocket connected
+[2025-09-05 10:35:00,815] [INFO] first candle
+[2025-09-05 10:36:17,553] [INFO] Websocket connected
+[2025-09-05 10:36:17,571] [INFO] Websocket connected
+[2025-09-05 13:13:24,334] [INFO] Websocket connected
+[2025-09-05 13:13:24,369] [INFO] Websocket connected
+[2025-09-05 13:13:30,868] [INFO] first candle
+[2025-09-05 10:46:18,150] [INFO] Websocket connected
+[2025-09-05 10:46:18,150] [INFO] Websocket connected
+[2025-09-05 10:46:34,363] [INFO] Websocket connected
+[2025-09-05 10:46:34,363] [INFO] Websocket connected
+[2025-09-05 10:49:10,348] [INFO] Websocket connected
+[2025-09-05 10:49:10,353] [INFO] Websocket connected
+[2025-09-05 10:49:30,789] [INFO] first candle
+[2025-09-05 10:50:00,800] [INFO] [Candle] 2025-09-05 10:49:30 | NSE:NIFTY50-INDEX | open: 24695.05, high: 24696.25, low: 24692.25, close: 24693.2
+[2025-09-05 10:50:26,713] [INFO] Websocket connected
+[2025-09-05 10:50:26,730] [INFO] Websocket connected
+[2025-09-05 10:50:30,292] [INFO] first candle
+[2025-09-05 10:50:30,812] [INFO] [Candle] 2025-09-05 10:50:00 | NSE:NIFTY50-INDEX | open: 24692.7, high: 24696.35, low: 24690.8, close: 24694.5
+[2025-09-05 10:51:00,691] [INFO] [Candle] 2025-09-05 10:50:30 | NSE:NIFTY50-INDEX | open: 24695.0, high: 24697.1, low: 24693.55, close: 24693.55
+[2025-09-05 10:51:30,838] [INFO] [Candle] 2025-09-05 10:51:00 | NSE:NIFTY50-INDEX | open: 24693.25, high: 24694.4, low: 24686.75, close: 24686.75
+[2025-09-05 10:52:00,853] [INFO] [Candle] 2025-09-05 10:51:30 | NSE:NIFTY50-INDEX | open: 24687.05, high: 24688.05, low: 24680.75, close: 24682.1
+[2025-09-05 10:52:30,867] [INFO] [Candle] 2025-09-05 10:52:00 | NSE:NIFTY50-INDEX | open: 24682.2, high: 24682.6, low: 24674.0, close: 24676.9
+[2025-09-05 10:53:00,820] [INFO] [Candle] 2025-09-05 10:52:30 | NSE:NIFTY50-INDEX | open: 24676.35, high: 24679.35, low: 24674.75, close: 24678.7
+[2025-09-05 10:53:07,260] [INFO] Websocket connected
+[2025-09-05 10:53:07,276] [INFO] Websocket connected
+[2025-09-05 10:53:30,860] [INFO] [Candle] 2025-09-05 10:53:00 | NSE:NIFTY50-INDEX | open: 24679.4, high: 24679.4, low: 24673.25, close: 24675.3
+[2025-09-05 10:54:00,904] [INFO] [Candle] 2025-09-05 10:53:30 | NSE:NIFTY50-INDEX | open: 24673.85, high: 24674.25, low: 24669.65, close: 24670.35
+[2025-09-05 10:54:09,370] [INFO] Websocket connected
+[2025-09-05 10:54:09,376] [INFO] Websocket connected
+[2025-09-05 10:54:30,802] [INFO] [Candle] 2025-09-05 10:54:00 | NSE:NIFTY50-INDEX | open: 24670.75, high: 24670.75, low: 24667.4, close: 24668.75
+[2025-09-05 10:57:04,911] [INFO] Websocket connected
+[2025-09-05 10:57:04,922] [INFO] Websocket connected
+[2025-09-05 10:57:08,138] [ERROR] \u274c Subscription failed (no ack)
+[2025-09-05 10:57:30,155] [INFO] first candle
+[2025-09-05 10:57:30,155] [INFO] [Candle] 2025-09-05 10:57:00 | NSE:NIFTY50-INDEX | open: 24676.7, high: 24679.4, low: 24671.75, close: 24671.75
+[2025-09-05 10:58:06,134] [INFO] Websocket connected
+[2025-09-05 10:58:06,134] [INFO] Websocket connected
+[2025-09-05 10:58:09,272] [ERROR] \u274c Subscription failed (no ack)
+[2025-09-05 10:58:47,791] [INFO] Websocket connected
+[2025-09-05 10:58:47,796] [INFO] Websocket connected
+[2025-09-05 10:59:15,817] [INFO] Websocket connected
+[2025-09-05 10:59:15,817] [INFO] Websocket connected
+[2025-09-05 11:01:08,625] [INFO] Websocket connected
+[2025-09-05 11:01:08,625] [INFO] Websocket connected
+[2025-09-05 11:04:04,903] [INFO] Websocket connected
+[2025-09-05 11:04:04,913] [INFO] Websocket connected
+[2025-09-05 11:05:35,532] [INFO] Websocket connected
+[2025-09-05 11:05:35,547] [INFO] Websocket connected
+[2025-09-05 11:05:37,121] [INFO] \u2705 Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:06:15,394] [INFO] Websocket connected
+[2025-09-05 11:06:17,010] [INFO] ✅ Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:06:20,384] [INFO] Websocket connected
+[2025-09-05 11:06:30,010] [INFO] first candle
+[2025-09-05 11:07:11,689] [INFO] Websocket connected
+[2025-09-05 11:07:13,359] [INFO] ✅ Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:07:16,694] [INFO] Websocket connected
+[2025-09-05 11:07:30,223] [INFO] first candle
+[2025-09-05 11:07:56,396] [INFO] Websocket connected
+[2025-09-05 11:07:56,396] [INFO] Websocket connected
+[2025-09-05 11:07:58,091] [INFO] \u2705 Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:08:00,088] [INFO] first candle
+[2025-09-05 11:08:00,234] [INFO] [Candle] 2025-09-05 11:07:30 | NSE:NIFTY50-INDEX | open: 24692.25, high: 24693.55, low: 24690.85, close: 24691.55
+[2025-09-05 11:08:01,026] [INFO] [Candle] 2025-09-05 11:07:30 | NSE:NIFTY50-INDEX | open: 24691.4, high: 24691.4, low: 24691.4, close: 24691.4
+[2025-09-05 11:08:05,998] [INFO] ✅ Subscribing NSE:NIFTY2590924700PE, running=True, fyers=True
+[2025-09-05 11:08:06,311] [INFO] [Position OPEN] NSE:IDEA-EQ, Qty: 1
+[2025-09-05 11:08:06,822] [INFO] Order placed with ID: 25090500164729-BO-1
+[2025-09-05 11:08:07,274] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757050685 New Stop: 6.84 (breakeven) LTP: 90.85
+[2025-09-05 11:08:07,658] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757050686 New Stop: 6.94 (1st trail locked profit) LTP: 91.55
+[2025-09-05 11:08:16,733] [INFO] [Position CLOSED] NSE:IDEA-EQ
+[2025-09-05 11:08:16,733] [INFO] Realized P/L: -0.08000000000000718
+[2025-09-05 11:08:16,733] [INFO] [strategy_one] Trade 0 closed
+[2025-09-05 11:08:30,107] [INFO] [Candle] 2025-09-05 11:08:00 | NSE:NIFTY50-INDEX | open: 24690.95, high: 24690.95, low: 24682.25, close: 24683.8
+[2025-09-05 11:08:30,518] [INFO] [Position OPEN] NSE:IDEA-EQ, Qty: 1
+[2025-09-05 11:08:30,652] [INFO] \u2705 Subscribing NSE:NIFTY2590924700PE, running=True, fyers=True
+[2025-09-05 11:08:31,377] [INFO] Order placed with ID: 25090500165074-BO-1
+[2025-09-05 11:08:31,848] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757050710 New Stop: 6.85 (breakeven) LTP: 90.9
+[2025-09-05 11:08:32,112] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757050711 New Stop: 6.95 (1st trail locked profit) LTP: 90.95
+[2025-09-05 11:08:41,637] [INFO] [Position CLOSED] NSE:IDEA-EQ
+[2025-09-05 11:08:41,637] [INFO] Realized P/L: -0.0899999999999972
+[2025-09-05 11:08:41,891] [INFO] [strategy_one] Trade 1 closed
+[2025-09-05 11:10:44,285] [INFO] Websocket connected
+[2025-09-05 11:10:44,285] [INFO] Websocket connected
+[2025-09-05 11:10:45,879] [INFO] \u2705 Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:10:46,642] [INFO] None
+[2025-09-05 11:11:23,947] [INFO] Websocket connected
+[2025-09-05 11:11:23,954] [INFO] Websocket connected
+[2025-09-05 11:11:25,567] [INFO] \u2705 Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:20:51,314] [INFO] ✅ Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:20:54,673] [INFO] Websocket connected
+[2025-09-05 11:20:54,716] [INFO] Websocket connected
+[2025-09-05 11:22:03,917] [INFO] Websocket connected
+[2025-09-05 11:22:03,955] [INFO] Websocket connected
+[2025-09-05 11:22:05,601] [INFO] \u2705 Subscribing NSE:NIFTY50-INDEX, running=True, fyers=True
+[2025-09-05 11:22:56,174] [INFO] Websocket connected
+[2025-09-05 11:22:56,196] [INFO] Websocket connected
+[2025-09-05 11:23:00,725] [INFO] first candle
+[2025-09-05 11:23:30,793] [INFO] [Candle] 2025-09-05 11:23:00 | NSE:NIFTY50-INDEX | open: 24692.6, high: 24692.6, low: 24687.55, close: 24688.25
+[2025-09-05 11:23:31,340] [INFO] [Position OPEN] NSE:IDEA-EQ, Qty: 1
+[2025-09-05 11:23:32,026] [INFO] Order placed with ID: 25090500174885-BO-1
+[2025-09-05 11:23:32,372] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757051611 New Stop: 6.819999999999999 (breakeven) LTP: 86.85
+[2025-09-05 11:23:32,840] [INFO] [Trailing SL Update] NSE:NIFTY2590924700PE | Time: 1757051612 New Stop: 6.92 (1st trail locked profit) LTP: 87.5
+[2025-09-05 11:23:44,321] [INFO] [Position CLOSED] NSE:IDEA-EQ
+[2025-09-05 11:23:44,321] [INFO] Realized P/L: -0.0899999999999963
+[2025-09-05 11:23:44,575] [INFO] [strategy_one] Trade 1 closed
+[2025-09-05 11:24:00,049] [INFO] max trade reached
+[2025-09-05 11:24:00,285] [INFO] [Strategy 1] ended
+[2025-09-05 11:24:00,327] [INFO] [Data WS Closed] {'code': 200, 'message': 'Connection Closed', 's': 'ok'}
+[2025-09-05 11:24:06,184] [INFO] [Order WS] Closed cleanly.
+[2025-09-05 11:24:06,184] [INFO] [Main] Program terminated.
