@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import asyncio
 
 load_dotenv()  
-fyers = fyersModel.FyersModel(client_id=os.getenv("CLIENT_ID"), token=os.getenv("FYERS_ACCESS_TOKEN"), is_async=False, log_path=None)
+fyers = fyersModel.FyersModel(client_id=os.getenv("CLIENT_ID"), token=os.getenv("FYERS_ACCESS_TOKEN"), is_async=True, log_path=None)
 
 # Function to place an order
 async def place_order(symbol: str, qty: int, order_type: int, side: int, stop_loss: float, take_profit: float):
