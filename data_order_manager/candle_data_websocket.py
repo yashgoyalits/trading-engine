@@ -1,8 +1,7 @@
-import threading
-import time
-from datetime import datetime, timedelta
-from fyers_apiv3.FyersWebsocket import data_ws
 import os
+from datetime import datetime, timedelta
+import asyncio
+from fyers_apiv3.FyersWebsocket import data_ws
 from dotenv import load_dotenv
 from logger import logger
 
@@ -11,15 +10,11 @@ ACCESS_TOKEN = os.getenv("FYERS_ACCESS_TOKEN")
 
 
 def get_candle_start(ts, tf=30):
-    """
-    Align exchange timestamp (epoch seconds) to exchange clock
-    Candles start from 09:15:00 IST
-    """
+    """Align exchange timestamp (epoch seconds) to exchange clock (09:15 start)."""
     dt = datetime.fromtimestamp(ts)
-    seconds = dt.hour * 3600 + dt.minute * 60 + dt.second
+    seconds = dt.hour * 3600 + dt.minute * 60 + dt.second + dt.microsecond / 1e6
     session_start = 9 * 3600 + 15 * 60  # 09:15 = 33300s
     if seconds < session_start:
-        # before market open → ignore
         return None
     bucket = ((seconds - session_start) // tf) * tf
     aligned = session_start + bucket
@@ -37,68 +32,64 @@ class FyersWSManager:
 
     def __init__(self):
         self.fyers = None
-        self.symbols = {}  # {symbol: {...}}
-        self.lock = threading.Lock()
+        self.symbols = {}  # symbol -> data
         self._running = False
-        self._flusher_thread = None
+        self._loop = asyncio.get_event_loop()
 
     # ---------------- Subscribe / Unsubscribe ----------------
     def subscribe_symbol(self, symbol, mode="candle", timeframe=30, callback=None):
-        with self.lock:
-            if symbol not in self.symbols:
-                self.symbols[symbol] = {
-                    "mode": mode,
-                    "timeframe": timeframe,
-                    "ohlc": {"open": None, "high": None, "low": None, "close": None, "start_time": None},
-                    "last_ts": None,
-                    "last_ltp": None,
-                    "tick_callbacks": [],
-                    "candle_callbacks": []
-                }
+        if symbol not in self.symbols:
+            self.symbols[symbol] = {
+                "mode": mode,
+                "timeframe": timeframe,
+                "ohlc": {"open": None, "high": None, "low": None, "close": None, "start_time": None},
+                "last_ts": None,
+                "last_ltp": None,
+                "tick_callbacks": [],
+                "candle_callbacks": []
+            }
+        if callback:
+            if mode == "tick":
+                self.symbols[symbol]["tick_callbacks"].append(callback)
+            else:
+                self.symbols[symbol]["candle_callbacks"].append(callback)
 
-            if callback:
-                if mode == "tick":
-                    self.symbols[symbol]["tick_callbacks"].append(callback)
-                else:
-                    self.symbols[symbol]["candle_callbacks"].append(callback)
-
-            if self._running and self.fyers:
-                self.fyers.subscribe([symbol], "SymbolUpdate")
+        if self._running and self.fyers:
+            self.fyers.subscribe([symbol], "SymbolUpdate")
 
     def unsubscribe_symbol(self, symbol):
-        with self.lock:
-            if symbol in self.symbols:
-                if self._running and self.fyers:
-                    self.fyers.unsubscribe([symbol])
-                del self.symbols[symbol]
+        if symbol in self.symbols:
+            if self._running and self.fyers:
+                self.fyers.unsubscribe([symbol])
+            del self.symbols[symbol]
 
-    # ---------------- WebSocket Event Handler ----------------
+    # ---------------- WS Event Handlers ----------------
     def _on_message(self, message):
+        """Called in WS thread, schedule processing in main asyncio loop."""
+        self._loop.call_soon_threadsafe(asyncio.create_task, self._process_message(message))
+
+    async def _process_message(self, message):
         if not self._running:
             return
-
         symbol = message.get("symbol")
         if not symbol or symbol not in self.symbols:
             return
-
         data = self.symbols[symbol]
+
         try:
             ltp = message.get("ltp") or data.get("last_ltp")
             exch_time = message.get("exch_feed_time")
-
             if ltp is None or exch_time is None:
                 return
 
             data["last_ltp"] = ltp
-
-            # prevent duplicates
             if exch_time == data["last_ts"]:
                 return
             data["last_ts"] = exch_time
 
             if data["mode"] == "tick":
                 for cb in data["tick_callbacks"]:
-                    cb(symbol, {"ltp": ltp, "exch_feed_time": exch_time})
+                    await self._safe_callback(cb, symbol, {"ltp": ltp, "exch_feed_time": exch_time})
             else:
                 tf = data["timeframe"]
                 candle_time = get_candle_start(exch_time, tf)
@@ -107,70 +98,66 @@ class FyersWSManager:
 
                 ohlc = data["ohlc"]
                 if ohlc["start_time"] != candle_time:
-                    # close previous candle
                     if ohlc["start_time"]:
                         candle_copy = ohlc.copy()
-                        candle_copy["time"] = ohlc["start_time"].strftime("%Y-%m-%d %H:%M:%S")
+                        candle_copy["time"] = ohlc["start_time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                         for cb in data["candle_callbacks"]:
-                            cb(symbol, candle_copy)
-
-                    # new candle
+                            await self._safe_callback(cb, symbol, candle_copy)
                     data["ohlc"] = {"open": ltp, "high": ltp, "low": ltp, "close": ltp, "start_time": candle_time}
                 else:
-                    # update candle
                     ohlc["high"] = max(ohlc["high"], ltp)
                     ohlc["low"] = min(ohlc["low"], ltp)
                     ohlc["close"] = ltp
 
         except Exception as e:
-            logger.info(f"[WS _on_message Error] {e}")
+            logger.info(f"[WS _process_message Error] {e}")
+
+    async def _safe_callback(self, cb, symbol, data):
+        try:
+            result = cb(symbol, data)
+            if asyncio.iscoroutine(result):
+                await result
+        except Exception as e:
+            logger.info(f"[Callback Error] {symbol} {e}")
 
     def _on_open(self):
-        with self.lock:
-            if self.fyers and self.symbols:
-                self.fyers.subscribe(list(self.symbols.keys()), "SymbolUpdate")
+        self._loop.call_soon_threadsafe(asyncio.create_task, self._subscribe_all())
+
+    async def _subscribe_all(self):
+        if self.fyers and self.symbols:
+            self.fyers.subscribe(list(self.symbols.keys()), "SymbolUpdate")
 
     def _on_error(self, msg):
-        logger.info("[Data WS Error] %s", msg)
+        self._loop.call_soon_threadsafe(logger.info, f"[Data WS Error] {msg}")
 
     def _on_close(self, msg):
-        logger.info("[Data WS Closed] %s", msg)
+        self._loop.call_soon_threadsafe(logger.info, f"[Data WS Closed] {msg}")
 
     # ---------------- Candle Flusher ----------------
-    def _flusher(self):
-        """
-        Background thread that forces candle closure at timeframe boundaries,
-        even if no ticks arrive.
-        """
+    async def _flusher(self):
         while self._running:
             now = datetime.now()
-            with self.lock:
-                for symbol, data in self.symbols.items():
-                    if data["mode"] != "candle":
-                        continue
-
-                    ohlc = data["ohlc"]
-                    tf = data["timeframe"]
-                    if not ohlc["start_time"]:
-                        continue
-
-                    # if candle expired
-                    if (now - ohlc["start_time"]).total_seconds() >= tf:
-                        candle_copy = ohlc.copy()
-                        candle_copy["time"] = ohlc["start_time"].strftime("%Y-%m-%d %H:%M:%S")
-                        for cb in data["candle_callbacks"]:
-                            cb(symbol, candle_copy)
-                        # reset for next candle (wait for tick)
-                        data["ohlc"] = {"open": None, "high": None, "low": None, "close": None, "start_time": None}
-
-            time.sleep(1)
+            for symbol, data in self.symbols.items():
+                if data["mode"] != "candle":
+                    continue
+                ohlc = data["ohlc"]
+                tf = data["timeframe"]
+                if not ohlc["start_time"]:
+                    continue
+                elapsed = (now - ohlc["start_time"]).total_seconds()
+                if elapsed >= tf:
+                    candle_copy = ohlc.copy()
+                    candle_copy["time"] = ohlc["start_time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                    for cb in data["candle_callbacks"]:
+                        await self._safe_callback(cb, symbol, candle_copy)
+                    data["ohlc"] = {"open": None, "high": None, "low": None, "close": None, "start_time": None}
+            await asyncio.sleep(0.01)
 
     # ---------------- Start / Stop ----------------
     def start(self):
-        with self.lock:
-            if self._running:
-                return
-            self._running = True
+        if self._running:
+            return
+        self._running = True
 
         self.fyers = data_ws.FyersDataSocket(
             access_token=ACCESS_TOKEN,
@@ -183,21 +170,17 @@ class FyersWSManager:
             on_close=self._on_close
         )
 
-        threading.Thread(target=self.fyers.connect, daemon=True).start()
-        threading.Thread(target=self.fyers.keep_running, daemon=True).start()
+        # WS connect runs in thread internally
+        self.fyers.connect()
+        self.fyers.keep_running()
 
-        # start candle flusher
-        self._flusher_thread = threading.Thread(target=self._flusher, daemon=True)
-        self._flusher_thread.start()
+        # Start flusher in main loop
+        asyncio.get_event_loop().create_task(self._flusher())
 
     def stop(self):
-        with self.lock:
-            self._running = False
+        self._running = False
         if self.fyers:
             try:
                 self.fyers.close_connection()
             except Exception as e:
                 logger.info("Error closing Fyers connection: %s", e)
-
-        if self._flusher_thread and self._flusher_thread.is_alive():
-            self._flusher_thread.join(timeout=2)
