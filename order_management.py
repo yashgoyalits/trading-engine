@@ -1,7 +1,6 @@
 from fyers_apiv3 import fyersModel
 import os
 from dotenv import load_dotenv
-import asyncio
 
 load_dotenv()  
 fyers = fyersModel.FyersModel(client_id=os.getenv("CLIENT_ID"), token=os.getenv("FYERS_ACCESS_TOKEN"), is_async=True, log_path=None)
@@ -34,7 +33,7 @@ async def modify_order(order_id: str, order_type: int, limit_price: float, stop_
     }
     return await fyers.modify_order(order_data)
 
-
+#function- to get the complete orderbook 
 async def get_main_stop_target_orders(parent_id: str):
     # ✅ fetch all orders
     response = await fyers.orderbook()

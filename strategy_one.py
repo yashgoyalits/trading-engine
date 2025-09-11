@@ -43,24 +43,24 @@ async def strategy_one(ws_mgr, loop, max_trades):
     #tick consumer for trailling when order get placed 
     async def tick_consumer():
         nonlocal active_order_id
-        stop_task = asyncio.create_task(stop_event.wait())
-        try:
-            while True:
-                tick_task = asyncio.create_task(tick_queue.get())
-                done, _ = await asyncio.wait(
-                    [tick_task, stop_task],
-                    return_when=asyncio.FIRST_COMPLETED
-                )
+        
+        while not stop_event.is_set():
+            processed = False
+            try:
+                # Drain queue fully
+                while True:
+                    symbol, tick = tick_queue.get_nowait()
+                    processed = True
+                    if active_order_id:
+                        try:
+                            await start_trailing_sl(active_order_id, symbol, tick)
+                        except Exception as e:
+                            logger.error(f"[tick_consumer] trailing error: {e}")
+            except asyncio.QueueEmpty:
+                if not processed:
+                    # Tiny pause to avoid CPU spin, but still very low latency
+                    await asyncio.sleep(0.001)
 
-                if stop_task in done:  
-                    tick_task.cancel()
-                    break
-
-                symbol, tick = tick_task.result()
-                if active_order_id:
-                    await start_trailing_sl(active_order_id, symbol, tick)
-        finally:
-            stop_task.cancel()
     
     #order / postion checking consumer-- when trade open and close listen to that 
     async def trade_close_consumer():
