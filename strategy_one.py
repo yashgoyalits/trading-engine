@@ -7,6 +7,9 @@ from logger import logger
 from event_bus import event_bus
 
 async def strategy_one(ws_mgr, loop, max_trades):
+
+    strategy_id = "STRA_1"
+
     candle_queue = event_bus.subscribe("candle")
     tick_queue = event_bus.subscribe("tick")
     trade_close_queue = event_bus.subscribe("trade_close")
