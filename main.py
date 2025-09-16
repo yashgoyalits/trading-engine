@@ -24,7 +24,7 @@ async def main():
 
     event_bus.wire_sources(ws_mgr, order_mgr, loop)
 
-    await strategy_one(ws_mgr, loop, max_trades=1)
+    await strategy_one("strategy_one", ws_mgr, loop, max_trades=1)
 
     ws_mgr.stop()
     order_mgr.stop()

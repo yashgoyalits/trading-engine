@@ -5,9 +5,7 @@ from utils.logger import logger
 from event_bus import event_bus
 from order_manager import OrderManager
 
-async def strategy_one(ws_mgr, loop, max_trades):
-
-    strategy_id="strategy_one"
+async def strategy_one(strategy_id, ws_mgr, loop, max_trades):
     
     candle_queue = event_bus.subscribe("candle")
     tick_queue = event_bus.subscribe("tick")
