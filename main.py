@@ -2,7 +2,7 @@
 import asyncio
 from data_order_manager.order_websocket_manager import FyersOrderManager
 from data_order_manager.candle_data_websocket import FyersWSManager
-from strategy_one import strategy_one  
+from strategy.strategy_one import strategy_one  
 from utils.logger import logger
 import os
 from dotenv import load_dotenv

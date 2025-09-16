@@ -1,5 +1,5 @@
 import asyncio
-from strategy_one_logic import check_entry_condition, start_trailing_sl
+from strategy.strategy_one_logic import check_entry_condition, start_trailing_sl
 from utils.csv_builder import log_trade 
 from utils.logger import logger
 from event_bus import event_bus
