@@ -1,9 +1,9 @@
-from order_placement import place_order, modify_order
+from order_manager.order_placement import place_order, modify_order
 from datetime import datetime, timedelta
 import calendar
 from utils.logger import logger
 import math
-from order_manager import OrderManager
+from order_manager.order_manager import OrderManager
 
 async def check_entry_condition(symbol, candle):
     o, h, l, c = candle["open"], candle["high"], candle["low"], candle["close"]

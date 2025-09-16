@@ -2,8 +2,8 @@ import asyncio
 from strategy.strategy_one_logic import check_entry_condition, start_trailing_sl
 from utils.csv_builder import log_trade 
 from utils.logger import logger
-from event_bus import event_bus
-from order_manager import OrderManager
+from centeral_hub.event_bus import event_bus
+from order_manager.order_manager import OrderManager
 
 async def strategy_one(strategy_id, ws_mgr, loop, max_trades):
     

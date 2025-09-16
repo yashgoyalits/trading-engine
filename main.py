@@ -1,12 +1,12 @@
 #main.py file
 import asyncio
-from data_order_manager.order_websocket_manager import FyersOrderManager
-from data_order_manager.candle_data_websocket import FyersWSManager
+from data_position_websocket.order_websocket_manager import FyersOrderManager
+from data_position_websocket.candle_data_websocket import FyersWSManager
 from strategy.strategy_one import strategy_one  
 from utils.logger import logger
 import os
 from dotenv import load_dotenv
-from event_bus import event_bus
+from centeral_hub.event_bus import event_bus
 from utils.error_handling import error_handling
 
 load_dotenv()
