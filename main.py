@@ -1,7 +1,7 @@
 #main.py file
 import asyncio
-from data_position_websocket.order_websocket_manager import FyersOrderManager
-from data_position_websocket.fyers_data_websocket import FyersWSManager
+from websocket_manager.position_manager.fyers_position_webscoket import FyersOrderManager
+from websocket_manager.data_manager.fyers_data_websocket import FyersWSManager
 from strategy.strategy_one import strategy_one  
 from utils.logger import logger
 import os
