@@ -80,13 +80,14 @@ async def strategy_one(strategy_id, ws_mgr, loop, max_trades):
                     logger.info(f"[strategy_one] Trade {trades_done} PNL : {realized}")
                 active_order_id = None
             else: #trade open for that sysmbol
-                ws_mgr.subscribe_symbol(
-                    active_symbol,
-                    mode="tick",
-                    callback=lambda sym, tick: event_bus.tick_callback(loop, sym, tick)
-                )
-                logger.info(f"[Position OPEN] {active_symbol}, Qty: {net_qty}")
-                await OrderManager.add_order(strategy_id, active_order_id, position_id, active_symbol)
+               if active_order_id:
+                    await OrderManager.add_order(strategy_id, active_order_id, position_id, active_symbol)
+                    ws_mgr.subscribe_symbol(
+                        active_symbol,
+                        mode="tick",
+                        callback=lambda sym, tick: event_bus.tick_callback(loop, sym, tick)
+                    )
+                    logger.info(f"[Position OPEN] {active_symbol}, Qty: {net_qty}")
 
 
     # ---------------- Run All Consumers ----------------
