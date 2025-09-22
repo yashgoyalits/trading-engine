@@ -8,7 +8,7 @@ class StrategyOneTrailing:
     def __init__(self):
         pass
 
-    async def start_trailing_sl(self, symbol: str, active_order_id: str, tick: dict):
+    async def start_trailing_sl(self, strategy_id, symbol: str, active_order_id: str, tick: dict):
         # Get order from OrderManager
         order_obj = await OrderManager.get_order(active_order_id)
         if not order_obj:
@@ -35,7 +35,7 @@ class StrategyOneTrailing:
                         qty=1,
                     )
                 except Exception as e:
-                    logger.error(f"[Trailing SL Error] {symbol} | Level: {level['msg']} | {e}")
+                    logger.error(f"[{strategy_id}] | [Trailing SL Error] {symbol} | Level: {level['msg']} | {e}")
                     continue
 
                 if res.get('code') == 1102:
@@ -50,11 +50,11 @@ class StrategyOneTrailing:
                     await OrderManager.update_order(active_order_id, trailing_history=order_obj.trailing_history)
 
                     logger.info(
-                        f"[Trailing SL Update] {symbol} | New Stop: {level['new_stop']} ({level['msg']}) LTP: {tick_ltp}"
+                        f"[{strategy_id}] | [Trailing SL Update] {symbol} | New Stop: {level['new_stop']} ({level['msg']}) LTP: {tick_ltp}"
                     )
                     break
                 else:
-                    logger.warning(f"[Trailing SL Failed] {symbol} | Level: {level['msg']} | Response: {res}")
+                    logger.warning(f"[{strategy_id}] | [Trailing SL Failed] {symbol} | Level: {level['msg']} | Response: {res}")
                     continue
 
 strategy_one_trailing = StrategyOneTrailing()

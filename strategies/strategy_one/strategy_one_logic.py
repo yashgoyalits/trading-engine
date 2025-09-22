@@ -8,7 +8,7 @@ class StrategyLogicManager:
     def __init__(self):
         pass
 
-    async def check_entry_condition(self, symbol: str, candle: dict):
+    async def check_entry_condition(self, strategy_id, symbol: str, candle: dict):
         o, h, l, c = candle["open"], candle["high"], candle["low"], candle["close"]
 
         ce_symbol, pe_symbol = await OptionHelper.find_strike_price_atm(candle["close"])
@@ -29,9 +29,9 @@ class StrategyLogicManager:
             strike_price_name = ce_symbol if c > o else pe_symbol 
 
             #to check the time order was sent to the exchange
-            logger.info(f"last line before order placing to check the time next line is of order placement {strike_price_name}")
+            logger.info(f"[{strategy_id}]last line Order Placemment {strike_price_name}")
             order_response = await fyers_order_placement.place_order(symbol="NSE:IDEA-EQ", qty=1, order_type=2, side=side, stop_loss=stop_loss, take_profit=take_profit)
-            logger.info("order id received first line after order placement")
+            logger.info(f"[{strategy_id}] First Line After Order Id")
 
             order_id = order_response.get("id")
 
