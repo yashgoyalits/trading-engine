@@ -1,14 +1,12 @@
 from order_manager.fyers_order_placement import place_order, modify_order
-from datetime import datetime, timedelta
-import calendar
 from utils.logger import logger
-import math
 from order_manager.order_manager import OrderManager
+from strategy.helper import OptionHelper
 
 async def check_entry_condition(symbol, candle):
     o, h, l, c = candle["open"], candle["high"], candle["low"], candle["close"]
 
-    ce_symbol, pe_symbol = await find_strike_price_atm(candle["close"])
+    ce_symbol, pe_symbol = await OptionHelper.find_strike_price_atm(candle["close"])
     
     logger.info( f"[Candle] {candle['time']} | {symbol} | " f"open: {o}, high: {h}, low: {l}, close: {c}" )
 
@@ -87,40 +85,4 @@ async def start_trailing_sl(active_order_id: str, symbol: str, tick: dict):
                 continue
 
 
-MONTH_ABBR = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-
-async def next_tuesday_expiry(base_date: str = None) -> tuple[str, bool]:
-    # Use passed date or today
-    today = datetime.today()
-    # today = datetime.strptime("2025-10-12", "%Y-%m-%d") 
-
-    # Find next Tuesday
-    days_ahead = (1 - today.weekday()) % 7  # Tuesday = 1 (Mon=0)
-    days_ahead = days_ahead or 7            # if today is Tue, take next week
-    tuesday = today + timedelta(days=days_ahead)
-
-    # Last Tuesday of the month
-    last_day = calendar.monthrange(tuesday.year, tuesday.month)[1]
-    last_tuesday = last_day - ((datetime(tuesday.year, tuesday.month, last_day).weekday() - 1) % 7)
-
-    if tuesday.day == last_tuesday:
-        # Monthly expiry → YY + MON_ABBR
-        expiry_str = f"{tuesday.year % 100}{MONTH_ABBR[tuesday.month]}"
-        return expiry_str, True
-    else:
-        # Weekly expiry → YYMMDD
-        expiry_str = f"{tuesday.year % 100}{tuesday.month}{tuesday.day:02d}"
-        return expiry_str, False
-
-
-async def find_strike_price_atm(spot_price: float):
-    ce_strike = math.floor(spot_price / 50) * 50
-    pe_strike = math.ceil(spot_price / 50) * 50
-
-    expiry_str, _ = await next_tuesday_expiry()
-
-    ce_symbol = f"NSE:NIFTY{expiry_str}{ce_strike}CE"
-    pe_symbol = f"NSE:NIFTY{expiry_str}{pe_strike}PE"
-
-    return ce_symbol, pe_symbol
 
