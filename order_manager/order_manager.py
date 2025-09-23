@@ -2,6 +2,7 @@ import asyncio
 from typing import ClassVar, Dict, List
 from order_manager.fyers_order_placement import fyers_order_placement
 from utils.error_handling import error_handling
+from utils.csv_builder import TradeRow
 
 @error_handling
 class OrderManager:
@@ -114,19 +115,26 @@ class OrderManager:
     async def list_orders_for_strategy(cls, strategy_id):
         async with cls._lock:
             return [o for o in cls._registry.values() if o.strategy_id == strategy_id]
+    
 
-    def to_dict(self):
-        return {
-            "strategy_id": self.strategy_id,
-            "main_order_id": self.main_order_id,
-            "stop_order_id": self.stop_order_id,
-            "target_order_id": self.target_order_id,
-            "symbol": self.symbol,
-            "entry_price": self.entry_price,
-            "initial_stop_price": self.initial_stop_price,
-            "target_price": self.target_price,
-            "trailing_levels": list(self.trailing_levels),
-            "trailing_history": list(self.trailing_history),
-            "position_id": self.position_id,
-        }
+    def to_trade_row(self, trade_no: int) -> TradeRow:
+        side = "BUY" if self.target_price and self.entry_price and self.target_price > self.entry_price else "SELL"
 
+        return TradeRow(
+            strategy_id=self.strategy_id,
+            trade_no=trade_no,
+            order_id=self.main_order_id,
+            symbol=self.symbol,
+            position_id=self.position_id,
+            qty=1,  # if you later add `qty` in OrderManager, replace here
+            side=side,
+            entry_price=self.entry_price,
+            initial_stop_price=self.initial_stop_price,
+            target_price=self.target_price,
+            initial_sl_points=(self.initial_stop_price - self.entry_price)
+            if self.entry_price and self.initial_stop_price else None,
+            target_points=(self.target_price - self.entry_price)
+            if self.entry_price and self.target_price else None,
+            trailing_levels=self.trailing_levels,
+            trailing_history=self.trailing_history,
+        )

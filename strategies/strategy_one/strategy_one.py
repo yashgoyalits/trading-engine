@@ -39,10 +39,11 @@ class StrategyOne:
         position_id = pos.get("id")
 
         if self.active_order_id and net_qty == 0:  #--- TRADE CLOSE ----- 
-            self.ws_mgr.unsubscribe_symbol(active_symbol)
+            self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25SEP25200PE")
             order_obj = await OrderManager.get_order(self.active_order_id)
             if order_obj:
-                await csv_builder.log_trade(self.trades_done, self.active_order_id, order_obj.to_dict())
+                trade_row = order_obj.to_trade_row(trade_no=self.trades_done)
+                await csv_builder.log_trade(trade_row)
                 await OrderManager.remove_order(self.active_order_id)
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} closed")
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} PNL: {realized}")
@@ -50,7 +51,7 @@ class StrategyOne:
         elif self.active_order_id: #--- TRADE OPEN -----  
             await OrderManager.add_order(self.strategy_id, self.active_order_id, position_id, active_symbol)
             self.ws_mgr.subscribe_symbol(
-                active_symbol,
+                "NSE:NIFTY25SEP25200PE",
                 mode="tick",
                 callback=lambda sym, tick: event_bus.tick_callback(self.loop, sym, tick)
             )
