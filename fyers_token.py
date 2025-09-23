@@ -12,7 +12,7 @@ PIN = os.getenv("PIN")
 # --- Endpoint ---
 URL = "https://api-t1.fyers.in/api/v3/validate-refresh-token"
 
-# --- 📦 Payload template ---
+# --- Payload template ---
 def build_payload():
     return {
         "grant_type": "refresh_token",
@@ -46,33 +46,33 @@ def generate_access_token():
     if os.getenv("FYERS_ACCESS_TOKEN_DATE") == str(date.today()):
         return
 
-    logger.info("🔄 Requesting new access token...")
+    logger.info("Requesting new access token...")
 
     payload = build_payload()
 
     try:
         response = requests.post(URL, headers=HEADERS, data=json.dumps(payload))
     except Exception as e:
-        logger.info(f"❌ Request failed: {e}")
+        logger.info(f"Request failed: {e}")
         return None
 
     if response.status_code != 200:
-        logger.info(f"❌ HTTP Error {response.status_code}: {response.text}")
+        logger.info(f"HTTP Error {response.status_code}: {response.text}")
         return None
 
     try:
         data = response.json()
     except Exception as e:
-        logger.info(f"❌ Failed to parse JSON: {e}")
+        logger.info(f"Failed to parse JSON: {e}")
         return None
 
     if data.get("s") != "ok":
-        logger.info(f"⚠️ API Error: {data}")
+        logger.info(f"API Error: {data}")
         return None
 
     access_token = data.get("access_token")
     if not access_token:
-        logger.info("⚠️ No access token in response.")
+        logger.info("No access token in response.")
         return None
 
     # Save to .env
