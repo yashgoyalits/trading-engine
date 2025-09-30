@@ -2,6 +2,7 @@ from fyers_apiv3.FyersWebsocket import order_ws
 import asyncio
 from utils.error_handling import error_handling
 from utils.logger import logger
+from centeral_hub.event_bus import event_bus
 from dotenv import load_dotenv
 import os
 
@@ -27,9 +28,7 @@ class FyersOrderManager:
             raise ValueError("Missing CLIENT_ID or FYERS_ACCESS_TOKEN in environment")
 
         self.access_token = f"{client_id}:{access_token}"
-
-        self.callbacks = []         # list of callback functions
-        self.events = {}            # symbol -> asyncio.Event
+        self._loop = None
 
         self.fyers = order_ws.FyersOrderSocket(
             access_token=self.access_token,
@@ -41,9 +40,8 @@ class FyersOrderManager:
             on_positions=self.on_position,
         )
 
-        self._task = None  # asyncio task running the socket
+        self._task = None
 
-    # ---------------- WebSocket Callbacks ----------------
     def on_open(self):
         self.fyers.subscribe(data_type="OnPositions")
 
@@ -53,29 +51,18 @@ class FyersOrderManager:
     def on_error(self, msg):
         logger.error(f"[Order WS] Error: {msg}")
 
-    # ---------------- Position Handler ----------------
     def on_position(self, msg):
         positions = msg.get("positions")
         if not positions:
             return
 
         positions_list = positions if isinstance(positions, list) else [positions]
-
         for pos in positions_list:
-            symbol = pos.get("symbol")
+            # Publish to event_bus instead of callbacks
+            asyncio.run_coroutine_threadsafe(event_bus.publish("trade_close", pos), self._loop)
 
-            # fire callbacks
-            for cb in self.callbacks:
-                cb(pos)
-
-            # release waiters
-            event = self.events.get(symbol)
-            if event:
-                event.set()
-                self.events.pop(symbol, None)
-
-    # ---------------- Public Methods ----------------
     async def connect(self):
+        self._loop = asyncio.get_running_loop()
         loop = asyncio.get_running_loop()
         self._task = loop.run_in_executor(None, self.fyers.connect)
 
@@ -87,18 +74,7 @@ class FyersOrderManager:
                     self.fyers.ws.close(status=1000, reason="Normal Closure")
 
                 if self._task:
-                    # cancel executor task
                     self._task.cancel()
                 logger.info("[Order WS] Closed cleanly.")
             except Exception as e:
                 logger.error(f"[Order WS] Exception during close: {e}")
-
-    def register_close_callback(self, callback):
-        if callable(callback):
-            self.callbacks.append(callback)
-
-    async def wait_for_trade_close(self, symbol: str):
-        event = asyncio.Event()
-        self.events[symbol] = event
-        await event.wait()
-        self.events.pop(symbol, None)

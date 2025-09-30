@@ -1,10 +1,9 @@
-#candle_builder.py
 import asyncio
 from datetime import datetime, timedelta
 from utils.logger import logger
+from centeral_hub.event_bus import event_bus
 
 def align_to_candle_boundary(dt, tf):
-    """Align datetime to nearest candle start (session starts 09:15)."""
     session_start = dt.replace(hour=9, minute=15, second=0, microsecond=0)
     if dt < session_start:
         return None
@@ -18,14 +17,9 @@ class CandleBuilder:
 
     def __init__(self, tick_processor):
         self.tick_processor = tick_processor
-        self.callbacks, self.active, self.last_close = {}, {}, {}
-
-    def add_callback(self, symbol, callback):
-        """Register a candle callback for a symbol."""
-        self.callbacks.setdefault(symbol, []).append(callback)
+        self.active, self.last_close = {}, {}
 
     async def process_candle_tick(self, symbol, msg, tf):
-        """Update or start a new candle from a tick."""
         ltp, ts = msg.get("ltp"), msg.get("exch_feed_time")
         if not ltp or not ts:
             return
@@ -33,13 +27,12 @@ class CandleBuilder:
         if not start:
             return
 
-        # New candle
         if symbol not in self.active or self.active[symbol]["start_time"] != start:
             if symbol in self.active:
                 await self._complete_candle(symbol, tf)
             self.active[symbol] = {"open": ltp, "high": ltp, "low": ltp, "close": ltp,
                                    "start_time": start, "timeframe": tf, "volume": 0}
-        else:  # Update candle
+        else:
             c = self.active[symbol]
             c.update({
                 "high": max(c["high"], ltp),
@@ -48,7 +41,6 @@ class CandleBuilder:
             })
 
     async def _complete_candle(self, symbol, tf):
-        """Finalize and emit the last candle."""
         c = self.active.get(symbol)
         if not c:
             return
@@ -75,18 +67,12 @@ class CandleBuilder:
         }
         self.last_close[symbol] = candle["close"]
 
-        for cb in self.callbacks.get(symbol, []):
-            try:
-                res = cb(symbol, candle)
-                if asyncio.iscoroutine(res):
-                    await res
-            except Exception as e:
-                logger.error(f"[Candle Callback Error] {symbol}: {e}")
+        # Publish to event_bus instead of callbacks
+        await event_bus.publish("candle", (symbol, candle))
 
         self.tick_processor.cleanup_old_ticks(symbol, end.timestamp())
 
     async def check_and_complete_candles(self):
-        """Force-complete candles based on clock if ticks stop arriving."""
         now = datetime.now()
         for sym, c in list(self.active.items()):
             if now >= get_candle_end_time(c["start_time"], c["timeframe"]):

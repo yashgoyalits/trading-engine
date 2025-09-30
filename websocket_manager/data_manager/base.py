@@ -1,4 +1,3 @@
-# base.py
 import asyncio
 from utils.error_handling import error_handling
 from utils.logger import logger
@@ -9,7 +8,7 @@ from .candle_builder import CandleBuilder
 class BaseWSManager:
     def __init__(self, transport, tick_processor=None, candle_builder=None):
         self.transport = transport
-        self.symbols = {}  # {symbol: {"mode": "tick"|"candle", "timeframe": int}}
+        self.symbols = {}
         self._running = False
         self._loop = None
         self._queue = asyncio.Queue(maxsize=1000)
@@ -17,11 +16,9 @@ class BaseWSManager:
         self.candle_builder = candle_builder or CandleBuilder(self.tick_processor)
         self.log = logger
 
-    def subscribe_symbol(self, symbol, mode="candle", timeframe=30, callback=None):
+    def subscribe_symbol(self, symbol, mode="candle", timeframe=30):
         if symbol not in self.symbols:
             self.symbols[symbol] = {"mode": mode, "timeframe": timeframe}
-            if callback:
-                (self.tick_processor if mode == "tick" else self.candle_builder).add_callback(symbol, callback)
             if self._running:
                 self.transport.subscribe([symbol])
 
@@ -62,7 +59,6 @@ class BaseWSManager:
         self._running = True
         self._loop = loop or asyncio.get_running_loop()
 
-        # Start transport in thread and push messages to queue
         self.transport.start(
             loop=self._loop,
             queue=self._queue,
@@ -71,7 +67,6 @@ class BaseWSManager:
             on_close=lambda e: self.log.info(f"[WS Closed] {e}")
         )
 
-        # Start async tasks
         asyncio.create_task(self._process_queue())
         asyncio.create_task(self._precision_monitor())
 

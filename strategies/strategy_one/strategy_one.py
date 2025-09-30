@@ -53,7 +53,6 @@ class StrategyOne:
             self.ws_mgr.subscribe_symbol(
                 "NSE:NIFTY25SEP25200PE",
                 mode="tick",
-                callback=lambda sym, tick: event_bus.tick_callback(self.loop, sym, tick)
             )
             logger.info(f"[{self.strategy_id}] Position OPEN: {active_symbol}, Qty: {net_qty}")
 
