@@ -37,11 +37,13 @@ class BaseWSManager:
             if not symbol or symbol not in self.symbols:
                 continue
             cfg = self.symbols[symbol]
+            
             if cfg["mode"] == "tick":
-                await self.tick_processor.process_tick(symbol, message)
+                await self.tick_processor.process_tick(symbol, message, publish=True)
             else:
-                if await self.tick_processor.process_tick(symbol, message):
+                if await self.tick_processor.process_tick(symbol, message, publish=False):
                     await self.candle_builder.process_candle_tick(symbol, message, cfg["timeframe"])
+
 
     async def _precision_monitor(self):
         while self._running:
