@@ -45,11 +45,6 @@ class BaseWSManager:
                     await self.candle_builder.process_candle_tick(symbol, message, cfg["timeframe"])
 
 
-    async def _precision_monitor(self):
-        while self._running:
-            await self.candle_builder.check_and_complete_candles()
-            await asyncio.sleep(0.001)
-
     async def start(self):
         if self._running:
             return
@@ -68,11 +63,9 @@ class BaseWSManager:
         # Subscribe symbols
         if self.symbols:
             self.broker.subscribe(list(self.symbols.keys()))
-
-        # Start candle precision monitor
-        asyncio.create_task(self._precision_monitor())
-
+        
         self.log.info("[Manager] Started")
+
 
     async def stop(self):
         if not self._running:

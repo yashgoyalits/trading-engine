@@ -14,10 +14,10 @@ def get_candle_end_time(start, tf):
     return start + timedelta(seconds=tf)
 
 class CandleBuilder:
-
     def __init__(self, tick_processor):
         self.tick_processor = tick_processor
         self.active, self.last_close = {}, {}
+        self.completion_tasks = {}  # Track scheduled completions
 
     async def process_candle_tick(self, symbol, msg, tf):
         ltp, ts = msg.get("ltp"), msg.get("exch_feed_time")
@@ -30,8 +30,21 @@ class CandleBuilder:
         if symbol not in self.active or self.active[symbol]["start_time"] != start:
             if symbol in self.active:
                 await self._complete_candle(symbol, tf)
-            self.active[symbol] = {"open": ltp, "high": ltp, "low": ltp, "close": ltp,
-                                   "start_time": start, "timeframe": tf, "volume": 0}
+            
+            self.active[symbol] = {
+                "open": ltp, "high": ltp, "low": ltp, "close": ltp,
+                "start_time": start, "timeframe": tf, "volume": 0
+            }
+            
+            # Schedule candle completion
+            end_time = get_candle_end_time(start, tf)
+            delay = (end_time - datetime.now()).total_seconds()
+            if delay > 0:
+                if symbol in self.completion_tasks:
+                    self.completion_tasks[symbol].cancel()
+                self.completion_tasks[symbol] = asyncio.create_task(
+                    self._scheduled_complete(symbol, tf, delay)
+                )
         else:
             c = self.active[symbol]
             c.update({
@@ -40,7 +53,15 @@ class CandleBuilder:
                 "close": ltp
             })
 
+    async def _scheduled_complete(self, symbol, tf, delay):
+        await asyncio.sleep(delay)
+        if symbol in self.active:
+            await self._complete_candle(symbol, tf)
+            if symbol in self.active:
+                del self.active[symbol]
+
     async def _complete_candle(self, symbol, tf):
+        # Your existing completion logic remains the same
         c = self.active.get(symbol)
         if not c:
             return
@@ -66,15 +87,5 @@ class CandleBuilder:
             "time": c["start_time"].strftime("%Y-%m-%d %H:%M:%S"),
         }
         self.last_close[symbol] = candle["close"]
-
-        # Publish to event_bus instead of callbacks
         await EventBus.publish("candle", (symbol, candle))
-
         self.tick_processor.cleanup_old_ticks(symbol, end.timestamp())
-
-    async def check_and_complete_candles(self):
-        now = datetime.now()
-        for sym, c in list(self.active.items()):
-            if now >= get_candle_end_time(c["start_time"], c["timeframe"]):
-                await self._complete_candle(sym, c["timeframe"])
-                del self.active[sym]
