@@ -45,7 +45,6 @@ class CSVBuilder:
         return str(dt_value)
 
     async def log_trade(self, trade_row: TradeRow):
-        # Rotate file daily
         today_file = os.path.join(
             self.base_dir, f"{self.prefix}_{datetime.now().strftime('%Y-%m-%d')}.csv"
         )
@@ -53,7 +52,6 @@ class CSVBuilder:
             self.file_path = today_file
             self.header_written = False
 
-        # Ensure async-safe writes
         async with self._lock:
             file_exists = await aiofiles.os.path.exists(self.file_path)
 
@@ -62,18 +60,15 @@ class CSVBuilder:
                 output = StringIO()
                 writer = csv.DictWriter(output, fieldnames=row_dict.keys())
 
-                # Write header if new file
-                if not file_exists or not self.header_written:
+                # Write header only if file does not exist
+                if not file_exists:
                     writer.writeheader()
                     await f.write(output.getvalue())
                     output = StringIO()  # reset buffer
                     writer = csv.DictWriter(output, fieldnames=row_dict.keys())
-                    self.header_written = True
+                    self.header_written = True  # not strictly needed now
 
                 # Write row
                 writer.writerow(row_dict)
                 await f.write(output.getvalue())
 
-
-# Instantiate singleton
-csv_builder = CSVBuilder()

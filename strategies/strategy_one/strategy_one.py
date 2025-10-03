@@ -2,7 +2,7 @@
 import asyncio
 from strategies.strategy_one.strategy_one_logic import strategy_logic_manager
 from strategies.strategy_one.strategy_one_trailling import strategy_one_trailing
-from utils.csv_builder import csv_builder
+from utils.csv_builder import CSVBuilder
 from utils.logger import logger
 from centeral_hub.event_bus import EventBus
 from order_manager.order_manager import OrderManager
@@ -15,6 +15,8 @@ class StrategyOne:
         self.ws_mgr = ws_mgr
         self.loop = loop
         self.max_trades = max_trades
+
+        self.csv_builder = CSVBuilder()
 
         self.candle_queue = EventBus.subscribe("candle")
         self.tick_queue = EventBus.subscribe("tick")
@@ -42,7 +44,7 @@ class StrategyOne:
             order_obj = await OrderManager.get_order(self.active_order_id)
             if order_obj:
                 trade_row = order_obj.to_trade_row(trade_no=self.trades_done)
-                await csv_builder.log_trade(trade_row)
+                await self.csv_builder.log_trade(trade_row)
                 await OrderManager.remove_order(self.active_order_id)
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} closed")
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} PNL: {realized}")
