@@ -46,8 +46,8 @@ class StrategyOne:
             self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25OCT24800CE")
             order_obj = await OrderManager.get_order(self.active_order_id)
             if order_obj:
-                trade_row = order_obj.to_trade_row(trade_no=self.trades_done)
-                await self.csv_builder.log_trade(trade_row)
+                trade_data = order_obj.to_trade_done_data(trade_no=self.trades_done)
+                await self.csv_builder.log_trade(trade_data)
                 await OrderManager.remove_order(self.active_order_id)
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} closed")
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} PNL: {realized}")
