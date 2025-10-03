@@ -22,7 +22,6 @@ class StrategyOne:
 
         self.trades_done = 0
         self.active_order_id = None
-        self.stop_event = asyncio.Event()
 
     # ------------------ Max Trade Check ------------------
     def is_max_trade_reached(self):
@@ -39,7 +38,7 @@ class StrategyOne:
         position_id = pos.get("id")
 
         if self.active_order_id and net_qty == 0:  #--- TRADE CLOSE ----- 
-            self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25SEP25200PE")
+            self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25OCT24800CE")
             order_obj = await OrderManager.get_order(self.active_order_id)
             if order_obj:
                 trade_row = order_obj.to_trade_row(trade_no=self.trades_done)
@@ -51,7 +50,7 @@ class StrategyOne:
         elif self.active_order_id: #--- TRADE OPEN -----  
             await OrderManager.add_order(self.strategy_id, self.active_order_id, position_id, active_symbol)
             self.ws_mgr.subscribe_symbol(
-                "NSE:NIFTY25SEP25200PE",
+                "NSE:NIFTY25OCT24800CE",
                 mode="tick",
             )
             logger.info(f"[{self.strategy_id}] Position OPEN: {active_symbol}, Qty: {net_qty}")
@@ -62,44 +61,38 @@ class StrategyOne:
         _ = await self.candle_queue.get()
         logger.info("skipped candle")
 
-        while not self.stop_event.is_set():
+        while True:
             symbol, candle = await self.candle_queue.get()
-
             if self.active_order_id is None:
                 if self.is_max_trade_reached():
-                    self.stop_event.set()
-                    break
+                    logger.info("cancelling all task")
+                    for task in self.tasks:
+                        if not task.done():
+                            task.cancel()
+                    break  
                 condition_met, self.active_order_id = await strategy_logic_manager.check_entry_condition(self.strategy_id, symbol, candle)
                 if condition_met:
                     self.trades_done += 1
                     logger.info(f"[{self.strategy_id}] Order placed with ID: {self.active_order_id}")
 
     async def tick_consumer(self):
-        while not self.stop_event.is_set():
-            processed = False
-            while True:
-                if self.tick_queue.empty():
-                    break
-                symbol, tick = self.tick_queue.get_nowait()
-                processed = True
-                if self.active_order_id:
-                    await strategy_one_trailing.start_trailing_sl(self.strategy_id, symbol, self.active_order_id, tick)
-            if not processed:
-                await asyncio.sleep(0.001)
+        while True:
+            symbol, tick = await self.tick_queue.get()  
+            if self.active_order_id:
+                await strategy_one_trailing.start_trailing_sl(
+                    self.strategy_id, symbol, self.active_order_id, tick
+                )
 
     async def trade_close_consumer(self):
-        while not self.stop_event.is_set():
-            if self.trade_close_queue.empty():
-                await asyncio.sleep(0.01)
-                continue
-            pos = self.trade_close_queue.get_nowait()
+        while True:
+            pos = await self.trade_close_queue.get()  
             await self.manage_position(pos)
 
     # ------------------ Run ------------------
     async def run(self):
         async with asyncio.TaskGroup() as tg:
-            tg.create_task(self.candle_consumer())
-            tg.create_task(self.tick_consumer())
-            tg.create_task(self.trade_close_consumer())
-
-        logger.info(f"[{self.strategy_id} | ENDED")
+            candle_task = tg.create_task(self.candle_consumer())
+            tick_task = tg.create_task(self.tick_consumer())
+            trade_close_task = tg.create_task(self.trade_close_consumer())
+            
+            self.tasks = [candle_task, tick_task, trade_close_task]
