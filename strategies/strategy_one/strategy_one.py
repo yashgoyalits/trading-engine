@@ -5,7 +5,7 @@ from strategies.strategy_one.strategy_one_trailling import strategy_one_trailing
 from utils.csv_builder import CSVBuilder
 from utils.logger import logger
 from centeral_hub.event_bus import EventBus
-from order_manager.order_manager import OrderManager
+from order_active_state_manager.order_state_manager import OrderManager
 from order_placement_manager.fyers_order_placement import FyersOrderPlacement
 from utils.error_handling import error_handling
 
