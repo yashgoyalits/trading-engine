@@ -4,9 +4,7 @@ from typing import Optional
 from data_model.data_model import TradeData
 from strategies.strategy_one.logic_manager import StrategyLogicManager
 from strategies.strategy_one.trailling_manager import TrailingManager
-from utils.csv_builder import CSVBuilder
 from utils.logger import logger
-from centeral_hub.event_bus import EventBus
 from order_active_state_manager.order_state_manager import TradeManager
 from order_placement_manager.fyers_order_placement import FyersOrderPlacement
 from utils.error_handling import error_handling
@@ -20,8 +18,7 @@ class StrategyOne:
         self.loop = loop
         self.max_trades = max_trades
 
-        self.csv_builder = CSVBuilder()
-        self.order_state_manager = TradeManager(strategy_id)
+        self.order_state_manager = TradeManager(event_bus, strategy_id)
         self.strategy_logic_manager = StrategyLogicManager()
         self.fyers_order_placement = FyersOrderPlacement()
         self.trailling_manager = TrailingManager()
@@ -55,8 +52,6 @@ class StrategyOne:
             self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25OCT24800CE")
             trade_data = await self.order_state_manager.close_trade(self.active_order_id)
             if trade_data:
-                trade_data.trade_no = self.trades_done
-                await self.csv_builder.log_trade(trade_data)
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} closed")
                 logger.info(f"[{self.strategy_id}] Trade {self.trades_done} PNL: {realized}")
             self.active_order_id = None

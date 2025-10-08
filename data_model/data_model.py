@@ -3,8 +3,8 @@ from typing import List, Dict, Optional, Any
 
 @dataclass(slots=True)
 class TradeData:
-    strategy_id: str
     trade_no: int
+    strategy_id: str
     order_id: str
     stop_order_id: str
     target_order_id: str

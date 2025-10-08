@@ -5,7 +5,8 @@ from data_model.data_model import TradeData
 
 @error_handling
 class TradeManager:
-    def __init__(self, strategy_id: str):
+    def __init__(self, event_bus, strategy_id: str):
+        self.event_bus = event_bus
         self.strategy_id = strategy_id
         self._trades: Dict[str, TradeData] = {}  # in-memory trades for this strategy
         self._trade_counter = 0
@@ -21,8 +22,8 @@ class TradeManager:
         trade_no = self._trade_counter
 
         trade_data = TradeData(
-            strategy_id=self.strategy_id,
             trade_no=trade_no,
+            strategy_id=self.strategy_id,
             order_id=main_order_id,
             stop_order_id=stop.get("id") if stop else None,
             target_order_id=target.get("id") if target else None,
@@ -50,5 +51,7 @@ class TradeManager:
     async def close_trade(self, main_order_id: str) -> Optional[TradeData]:
         async with self._lock:
             trade = self._trades.pop(main_order_id, None)
+            if trade:
+                await self.event_bus.publish("trade_close", trade)
 
         return trade

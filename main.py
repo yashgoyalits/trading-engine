@@ -7,6 +7,7 @@ from utils.logger import logger
 from utils.error_handling import error_handling
 import os
 from centeral_hub.event_bus import EventBus
+from utils.csv_builder import CSVBuilder
 
 @error_handling
 async def main():
@@ -14,10 +15,11 @@ async def main():
     
     loop = asyncio.get_running_loop()
     
-    # Initialize both brokers using same interface
+    # Initialize 
     data_socket = FyersDataBroker()
     position_order_socket = FyersOrderPositionTracker()
     event_bus = EventBus()
+    _ = CSVBuilder(event_bus)
     ws_mgr = FyersWSManager(event_bus=event_bus, data_broker=data_socket, order_broker=position_order_socket)
     
     await ws_mgr.start()
