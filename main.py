@@ -11,10 +11,13 @@ from utils.csv_builder import CSVBuilder
 
 @error_handling
 async def main():
-    logger.info("ALGO STARTED")
     
     loop = asyncio.get_running_loop()
     
+    await logger.start(loop)
+    
+    logger.info("ALGO STARTED")
+
     # Initialize 
     data_socket = FyersDataBroker()
     position_order_socket = FyersOrderPositionTracker()
@@ -36,7 +39,9 @@ async def main():
     await ws_mgr.stop()
     
     logger.info("[Main] Program terminated")
-    await logger.flush()
+    
+    await logger.stop()
+    
     os._exit(0)
 
 if __name__ == "__main__":

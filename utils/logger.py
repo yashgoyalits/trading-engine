@@ -1,91 +1,100 @@
 import asyncio
-import aiofiles
-import os
+from pathlib import Path
 from datetime import datetime
-import atexit
+from typing import Optional
+import aiofiles
+import logging
+import orjson
+import os
 
-class Logger:
-    def __init__(self, log_dir=None):
-        self.log_dir = log_dir or os.path.join(os.getcwd(), "logger_files", "logs")
+class LoggerManager:
+    _instance: Optional['LoggerManager'] = None
+    _lock = asyncio.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self, log_dir: Optional[Path] = None):
+        if self._initialized:
+            return
+
+        # Logging directory
+        self.log_dir = log_dir or Path.cwd() / "logger_files" / "logs"
         os.makedirs(self.log_dir, exist_ok=True)
 
-        self.log_file = self._get_log_file()
-        self.log_queue = asyncio.Queue()
-        self._worker_started = False
-        self._worker_task = None
+        # Async queue and task
+        self._queue: asyncio.Queue = asyncio.Queue()
+        self._worker_task: Optional[asyncio.Task] = None
 
-        # ensure flush on exit
-        atexit.register(self._flush_on_exit)
+        # Formatter for terminal output
+        self._console_formatter = logging.Formatter(
+            '%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
 
-    def _get_log_file(self):
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        return os.path.join(self.log_dir, f"main_script_{today_str}.log")
+        self._initialized = True
 
-    def _get_timestamp(self):
-        dt = datetime.now()
-        millis = dt.microsecond // 1000
-        return f"{dt.strftime('%Y-%m-%d %H:%M:%S')}.{millis:03d}"
+    def _get_log_file(self) -> Path:
+        return self.log_dir / f"main_script_{datetime.now():%Y-%m-%d}.log"
 
     async def _log_worker(self):
-        while True:
-            level, msg, timestamp = await self.log_queue.get()
-            log_line = f"[{timestamp}] [{level}] {msg}\n"
-            try:
-                async with aiofiles.open(self._get_log_file(), "a") as f:
-                    await f.write(log_line)
-            except Exception as e:
-                print(f"[LOGGER ERROR] Failed to write log: {e}")
-            self.log_queue.task_done()
+        file_path = self._get_log_file()
+        async with aiofiles.open(file_path, "a", encoding="utf-8") as f:
+            while True:
+                record = await self._queue.get()
+                if record is None:  # Sentinel to stop
+                    break
 
-    def _start_worker(self):
-        if not self._worker_started:
-            try:
-                loop = asyncio.get_running_loop()
-                self._worker_task = loop.create_task(self._log_worker())
-                self._worker_started = True
-            except RuntimeError:
-                pass
+                # JSON log entry for file
+                log_entry = {
+                    "timestamp": datetime.fromtimestamp(record.created).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3],
+                    "level": record.levelname,
+                    "message": record.getMessage(),
+                    "module": record.module,
+                    "funcName": record.funcName,
+                    "line": record.lineno,
+                }
 
-    def _log(self, level, msg):
-        timestamp = self._get_timestamp()
-        log_line = f"[{timestamp}] [{level}] {msg}"
-        print(log_line)  # terminal output
+                json_line = orjson.dumps(log_entry).decode("utf-8") + "\n"
+                await f.write(json_line)
+                await f.flush()
 
-        try:
-            loop = asyncio.get_running_loop()
-            self._start_worker()
-            self.log_queue.put_nowait((level, msg, timestamp))
-        except RuntimeError:
-            with open(self._get_log_file(), "a") as f:
-                f.write(f"{log_line}\n")
+                # Terminal output (human-readable)
+                print(self._console_formatter.format(record))
+
+                self._queue.task_done()
+
+    async def start(self, loop: Optional[asyncio.AbstractEventLoop] = None):
+        if self._worker_task is None or self._worker_task.done():
+            self._loop = loop or asyncio.get_running_loop()
+            self._worker_task = self._loop.create_task(self._log_worker())
+
+    async def stop(self):
+        if self._worker_task and not self._worker_task.done():
+            await self._queue.join()  # wait until all logs are processed
+            await self._queue.put(None)  # send sentinel
+            await self._worker_task
+
+    def _log(self, level: int, msg: str):
+        record = logging.LogRecord(
+            name=__name__,
+            level=level,
+            pathname="",
+            lineno=0,
+            msg=msg,
+            args=(),
+            exc_info=None
+        )
+        self._queue.put_nowait(record)
 
     # Public API
-    def info(self, msg):
-        self._log("INFO", msg)
+    def debug(self, msg: str): self._log(logging.DEBUG, msg)
+    def info(self, msg: str): self._log(logging.INFO, msg)
+    def warning(self, msg: str): self._log(logging.WARNING, msg)
+    def error(self, msg: str): self._log(logging.ERROR, msg)
+    def critical(self, msg: str): self._log(logging.CRITICAL, msg)
 
-    def error(self, msg):
-        self._log("ERROR", msg)
-
-    def debug(self, msg):
-        self._log("DEBUG", msg)
-    
-    def warning(self, msg):
-        self._log("WARNING", msg)
-
-    async def flush(self):
-        if self._worker_started:
-            await self.log_queue.join()
-
-    def _flush_on_exit(self):
-        if self._worker_started:
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    loop.create_task(self.flush())
-                else:
-                    loop.run_until_complete(self.flush())
-            except RuntimeError:
-                pass
-
-# Create a logger instance
-logger = Logger()
+logger = LoggerManager()
