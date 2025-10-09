@@ -15,8 +15,12 @@ class TrailingManager:
         stop_order_id = trade_data.stop_order_id
         if not stop_order_id:
             return
+        
+        if trade_data.trailing_levels == []:
+            logger.error("no tralling levels provided")
+            return
 
-        trailing_levels = trade_data.trailing_levels or []
+        trailing_levels = trade_data.trailing_levels 
         trailing_history = trade_data.trailing_history or []
 
         for level in trailing_levels:
@@ -24,20 +28,15 @@ class TrailingManager:
                 continue
 
             if tick_ltp > level.get("threshold", float("inf")):
-                try:
-                    res = await fyers_order_placement.modify_order(
-                        stop_order_id,
-                        order_type=4,
-                        limit_price=level.get("new_stop"),
-                        stop_price=level.get("new_stop"),
-                        qty=trade_data.qty or 1,
-                    )
-                except Exception as e:
-                    logger.error(f"[{trade_data.strategy_id}] Trailing SL Error {trade_data.symbol} | {level.get('msg')} | {e}")
-                    continue
+                res = await fyers_order_placement.modify_order(
+                    stop_order_id,
+                    order_type=4,
+                    limit_price=level.get("new_stop"),
+                    stop_price=level.get("new_stop"),
+                    qty=trade_data.qty or 1,
+                )
 
                 if res.get('code') == 1102:
-                    # Update trade trailing history
                     trade_data.trailing_history.append({
                         "ltp": tick_ltp,
                         "level": level.get("msg"),
@@ -45,5 +44,3 @@ class TrailingManager:
                     })
                     logger.info(f"[{trade_data.strategy_id}] Trailing SL updated {trade_data.symbol} | {level.get('msg')} LTP: {tick_ltp}")
                     break
-                else:
-                    logger.warning(f"[{trade_data.strategy_id}] Trailing SL failed {trade_data.symbol} | {level.get('msg')} Response: {res}")
