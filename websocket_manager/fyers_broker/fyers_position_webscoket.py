@@ -36,8 +36,7 @@ class FyersOrderPositionTracker(BrokerInterface):
 
     def _on_open(self):
         self._connected = True
-        logger.info("[Order WS] Connected")
-        self.subscribe("OnPositions")
+        self.fyers.subscribe(data_type="OnPositions")
 
     def _on_close(self, msg):
         self._connected = False
@@ -60,7 +59,7 @@ class FyersOrderPositionTracker(BrokerInterface):
         self._queue = queue
         self._loop = asyncio.get_running_loop()
         self._task = self._loop.run_in_executor(None, self.fyers.connect)
-        logger.info("[Order WS] Connection established")
+        logger.info("Fyers Position Websocket Connected")
 
     async def disconnect(self):
         self._connected = False
@@ -72,14 +71,12 @@ class FyersOrderPositionTracker(BrokerInterface):
 
                 if self._task:
                     self._task.cancel()
-                logger.info("[Order WS] Disconnected cleanly")
+                logger.info("Fyers Position Websocket Disconnected")
             except Exception as e:
                 logger.error(f"[Order WS] Exception during disconnect: {e}")
 
     def subscribe(self, data):
-        if self._connected and isinstance(data, str):
-            self.fyers.subscribe(data_type=data)
-            logger.info(f"[Order WS] Subscribed to {data}")
+        pass
 
     def unsubscribe(self, data):
         pass

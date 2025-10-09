@@ -32,12 +32,11 @@ class FyersDataBroker(BrokerInterface):
 
         self._thread = threading.Thread(target=self._run_ws, daemon=True)
         self._thread.start()
-        logger.info("[Fyers] Connecting...")
 
     def _run_ws(self):
         def _on_open():
             self._connected = True
-            logger.info("[Fyers] Connected")
+            logger.info("Fyers Data Websocket Connected")
 
         def _on_message(message):
             msg = json.loads(message) if isinstance(message, str) else message
@@ -69,7 +68,7 @@ class FyersDataBroker(BrokerInterface):
         self._connected = False
         if self._socket:
             self._socket.close_connection()
-        logger.info("[Fyers] Disconnected")
+        logger.info("Fyers Data Websocket Disconnected")
 
     def subscribe(self, symbols: list):
         if self._socket and self._connected:

@@ -36,7 +36,7 @@ async def main():
     strategy = StrategyOne(event_bus, "strategy_one", ws_mgr, loop, max_trades=1)
     await strategy.run()
     
-    ws_mgr.unsubscribe_symbol("NSE:NIFTY50-INDEX")
+    # ws_mgr.unsubscribe_symbol("NSE:NIFTY50-INDEX")
 
     # Stop all connections
     await ws_mgr.stop()
