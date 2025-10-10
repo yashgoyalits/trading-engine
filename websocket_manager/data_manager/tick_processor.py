@@ -1,18 +1,18 @@
 from datetime import datetime
 from collections import deque
-from cachetools import TTLCache
+
 
 class TickProcessor:
-    def __init__(self, event_bus, max_ticks=1000, symbol_ttl=3600):
+    __slots__ = ('event_bus', 'tick_buffer', 'last_tick_time', 'max_ticks')
+    
+    def __init__(self, event_bus, max_ticks=1000):
         self.event_bus = event_bus
-        self.tick_buffer = TTLCache(maxsize=100, ttl=3600)
-        self.last_tick_time = {}
+        self.tick_buffer: dict[str, deque] = {}
+        self.last_tick_time: dict[str, int] = {}
         self.max_ticks = max_ticks
-        self.symbol_ttl = symbol_ttl
         
-    async def process_tick(self, symbol, msg, publish=True):
-        ltp, ts = msg.get("ltp"), msg.get("exch_feed_time")
-        if not ltp or not ts:
+    async def process_tick(self, symbol: str, msg: dict, publish: bool = True) -> bool:
+        if not (ltp := msg.get("ltp")) or not (ts := msg.get("exch_feed_time")):
             return False
         if self.last_tick_time.get(symbol) == ts:
             return False
@@ -24,7 +24,9 @@ class TickProcessor:
             "volume": msg.get("volume", 0)
         }
         
-        self.tick_buffer.setdefault(symbol, deque(maxlen=self.max_ticks)).append(tick)
+        if symbol not in self.tick_buffer:
+            self.tick_buffer[symbol] = deque(maxlen=self.max_ticks)
+        self.tick_buffer[symbol].append(tick)
         self.last_tick_time[symbol] = ts
         
         if publish:
@@ -32,18 +34,18 @@ class TickProcessor:
             
         return True
     
-    def get_ticks_in_range(self, symbol, start, end):
-        return [t for t in self.tick_buffer.get(symbol, [])
-                if start <= t["timestamp"] < end]
+    def get_ticks_in_range(self, symbol: str, start: float, end: float) -> list[dict]:
+        if buf := self.tick_buffer.get(symbol):
+            return [t for t in buf if start <= t["timestamp"] < end]
+        return []
     
-    def cleanup_old_ticks(self, symbol, cutoff):
-        buf = self.tick_buffer.get(symbol)
-        if buf:
+    def cleanup_old_ticks(self, symbol: str, cutoff: float) -> None:
+        if buf := self.tick_buffer.get(symbol):
             while buf and buf[0]["timestamp"] < cutoff:
                 buf.popleft()
     
-    def cleanup_inactive_symbols(self, current_time):
-        cutoff = current_time - self.symbol_ttl
+    def cleanup_inactive_symbols(self, current_time: float, ttl: int = 3600) -> int:
+        cutoff = current_time - ttl
         inactive = [s for s, ts in self.last_tick_time.items() if ts < cutoff]
         for symbol in inactive:
             self.tick_buffer.pop(symbol, None)
