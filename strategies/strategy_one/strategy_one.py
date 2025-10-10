@@ -73,12 +73,13 @@ class StrategyOne(BaseStrategy):
                     break  
                 condition_met = await self.strategy_logic_manager.check_entry_condition(self.strategy_id, symbol, candle)
                 if condition_met:
+                    logger.info("before")
                     order_response = await self.fyers_order_placement.place_order(symbol="NSE:IDEA-EQ", qty=1, order_type=2, side=1, stop_loss=0.5, take_profit=2.0)
                     self.active_order_id = order_response.get("id")
+                    logger.info(f"[{self.strategy_id}] Order placed with ID: {self.active_order_id}")
                     self.trades_done += 1
                     active_trade_data_obj = await self.order_state_manager.add_trade(self.fyers_order_placement, self.active_order_id)
                     self.active_trade_data_obj: Optional[TradeData] = active_trade_data_obj
-                    logger.info(f"[{self.strategy_id}] Order placed with ID: {self.active_order_id}")
 
     async def tick_consumer(self):
         while True:
