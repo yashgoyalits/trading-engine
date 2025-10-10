@@ -1,10 +1,11 @@
 from datetime import datetime
 from collections import deque
+from cachetools import TTLCache
 
 class TickProcessor:
     def __init__(self, event_bus, max_ticks=1000, symbol_ttl=3600):
         self.event_bus = event_bus
-        self.tick_buffer = {}
+        self.tick_buffer = TTLCache(maxsize=100, ttl=3600)
         self.last_tick_time = {}
         self.max_ticks = max_ticks
         self.symbol_ttl = symbol_ttl
