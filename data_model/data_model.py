@@ -28,3 +28,19 @@ class Tick:
     timestamp: float
     datetime: datetime
     volume: int = 0
+
+@dataclass(slots=True)
+class Candle:
+    symbol: str
+    open: float
+    high: float
+    low: float
+    close: float
+    start_time: datetime
+    volume: int = 0
+
+    def update(self, ltp: float, volume: int = 0) -> None:
+        self.high = max(self.high, ltp)
+        self.low = min(self.low, ltp)
+        self.close = ltp
+        self.volume += volume

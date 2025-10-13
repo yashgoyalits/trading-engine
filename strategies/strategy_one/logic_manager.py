@@ -1,7 +1,7 @@
 from utils.logger import logger
 from strategies.strategy_one.option_helper import OptionHelper
 from utils.error_handling import error_handling
-from data_manager.candle_builder import Candle
+from data_model.data_model import Candle
 
 @error_handling
 class StrategyLogicManager:

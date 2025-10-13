@@ -1,9 +1,8 @@
 import asyncio
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 from .tick_processor import TickProcessor
-from data_model.data_model import Tick
+from data_model.data_model import Tick, Candle
 
 def align_to_candle_boundary(dt: datetime, tf: int) -> Optional[datetime]:
     session_start = dt.replace(hour=9, minute=15, second=0, microsecond=0)
@@ -11,22 +10,6 @@ def align_to_candle_boundary(dt: datetime, tf: int) -> Optional[datetime]:
         return None
     secs = (dt - session_start).total_seconds()
     return session_start + timedelta(seconds=int(secs // tf) * tf)
-
-@dataclass(slots=True)
-class Candle:
-    symbol: str
-    open: float
-    high: float
-    low: float
-    close: float
-    start_time: datetime
-    volume: int = 0
-
-    def update(self, ltp: float, volume: int = 0) -> None:
-        self.high = max(self.high, ltp)
-        self.low = min(self.low, ltp)
-        self.close = ltp
-        self.volume += volume
 
 class CandleBuilder:
     __slots__ = ('tick_processor', 'event_bus', 'active', 'last_close', 'completion_tasks')
