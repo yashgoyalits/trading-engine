@@ -48,10 +48,8 @@ class TradeManager:
 
         return trade_data
 
-    async def close_trade(self, main_order_id: str) -> Optional[TradeData]:
+    async def close_trade(self, main_order_id: str) -> None:
         async with self._lock:
             trade = self._trades.pop(main_order_id, None)
             if trade:
                 await self.event_bus.publish("trade_close", trade)
-
-        return trade

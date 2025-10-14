@@ -50,10 +50,9 @@ class StrategyOne(BaseStrategy):
 
         if self.active_order_id and net_qty == 0:  #--- TRADE CLOSE ----- 
             self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25OCT24800CE")
-            trade_data = await self.order_state_manager.close_trade(self.active_order_id)
-            if trade_data:
-                logger.info(f"[{self.strategy_id}] Trade {self.trades_done} closed")
-                logger.info(f"[{self.strategy_id}] Trade {self.trades_done} PNL: {realized}")
+            await self.order_state_manager.close_trade(self.active_order_id)
+            logger.info(f"[{self.strategy_id}] Trade {self.trades_done} closed")
+            logger.info(f"[{self.strategy_id}] Trade {self.trades_done} PNL: {realized}")
             self.active_order_id = None
             self.active_trade_data_obj: Optional[TradeData] = None
         elif self.active_order_id: #--- TRADE OPEN -----  
