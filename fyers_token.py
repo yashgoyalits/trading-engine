@@ -43,9 +43,6 @@ def update_env_file(key: str, value: str, env_path: str = ".env"):
 
 def generate_access_token():
 
-    if os.getenv("FYERS_ACCESS_TOKEN_DATE") == str(date.today()):
-        return
-
     logger.info("Requesting new access token...")
 
     payload = build_payload()
