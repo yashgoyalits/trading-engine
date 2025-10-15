@@ -19,7 +19,7 @@ class DataManager(IDataManager):
         self._running = False
         self.tick_processor = tick_processor 
         self.candle_builder = candle_builder 
-        self.tick_queue = asyncio.Queue()
+        self.tick_queue = asyncio.Queue(maxsize=1000)
 
     async def start(self):
         if self._running:
