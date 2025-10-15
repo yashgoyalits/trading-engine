@@ -37,8 +37,11 @@ async def main():
     logger.info("ALL RESOURCES SUBSCRIBED")
     
     # Run strategy
-    strategy = StrategyOne(event_bus, "strategy_one", ws_mgr, loop, max_trades=1)
-    await strategy.run()
+    strategy_one = StrategyOne(event_bus, "strategy_one", ws_mgr, loop, max_trades=1)
+    
+    await asyncio.gather(
+        strategy_one.run()
+    )
 
     # Stop all connections
     await ws_mgr.stop()
