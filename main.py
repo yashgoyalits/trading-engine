@@ -3,13 +3,12 @@ from broker.fyers_broker.fyers_data_websocket import FyersDataBroker
 from broker.fyers_broker.fyers_position_webscoket import FyersOrderPositionTracker
 from data_manager.data_manager import DataManager
 from strategies.strategy_one.strategy_one import StrategyOne
-from common_utils.logger import logger
-from common_utils.error_handling import error_handling
-import os
-from central_hub.event_bus import EventBus
 from common_utils.csv_builder import CSVBuilder
-from data_manager.tick_processor import TickProcessor
 from data_manager.candle_builder import CandleBuilder
+from central_hub.event_bus import EventBus
+from common_utils.error_handling import error_handling
+from common_utils.logger import logger
+import os
 
 @error_handling
 async def main():
@@ -25,9 +24,8 @@ async def main():
     position_order_socket = FyersOrderPositionTracker()
     event_bus = EventBus()
     csv_builder = CSVBuilder(event_bus)
-    tick_processor = TickProcessor(event_bus=event_bus)
-    candle_builder = CandleBuilder(tick_processor=tick_processor, event_bus=event_bus)
-    ws_mgr = DataManager(event_bus=event_bus, data_broker=data_socket, order_broker=position_order_socket, tick_processor=tick_processor, candle_builder=candle_builder)
+    candle_builder = CandleBuilder(event_bus=event_bus)
+    ws_mgr = DataManager(event_bus=event_bus, data_broker=data_socket, order_broker=position_order_socket, candle_builder=candle_builder)
     
     await ws_mgr.start()
     

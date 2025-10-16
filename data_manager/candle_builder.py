@@ -1,7 +1,7 @@
 import asyncio
+from collections import deque
 from datetime import datetime, timedelta
-from typing import Dict, Optional
-from .tick_processor import TickProcessor
+from typing import Dict, Deque, Optional
 from data_model.data_model import Tick, Candle
 
 def align_to_candle_boundary(dt: datetime, tf: int) -> Optional[datetime]:
@@ -12,26 +12,35 @@ def align_to_candle_boundary(dt: datetime, tf: int) -> Optional[datetime]:
     return session_start + timedelta(seconds=int(secs // tf) * tf)
 
 class CandleBuilder:
-    __slots__ = ('tick_processor', 'event_bus', 'active', 'last_close', 'completion_tasks')
+    __slots__ = ('event_bus', 'tick_buffer', 'last_tick_time', 'active', 'last_close', 'completion_tasks', 'max_ticks')
 
-    def __init__(self, tick_processor: TickProcessor, event_bus):
-        self.tick_processor = tick_processor
+    def __init__(self, event_bus, max_ticks: int = 1000):
         self.event_bus = event_bus
+        self.tick_buffer: Dict[str, Deque[Tick]] = {}
+        self.last_tick_time: Dict[str, float] = {}
         self.active: Dict[str, Candle] = {}
         self.last_close: Dict[str, float] = {}
         self.completion_tasks: Dict[str, asyncio.Task] = {}
+        self.max_ticks = max_ticks
 
     async def process_candle_tick(self, tick: Tick, tf: int) -> None:
-        if not tick or tick.ltp is None:
+        if not tick or tick.ltp is None or tick.timestamp is None:
             return
 
-        symbol = tick.symbol
+        # Store tick
+        if tick.symbol not in self.tick_buffer:
+            self.tick_buffer[tick.symbol] = deque(maxlen=self.max_ticks)
+        self.tick_buffer[tick.symbol].append(tick)
+        self.last_tick_time[tick.symbol] = tick.timestamp
+
+        # Align to candle boundary
         now = datetime.now()
         start = align_to_candle_boundary(now, tf)
         if not start:
             return
 
         # Start new candle if window rolled over
+        symbol = tick.symbol
         if symbol not in self.active or self.active[symbol].start_time != start:
             if symbol in self.active:
                 await self._complete_candle(symbol, tf)
@@ -72,7 +81,9 @@ class CandleBuilder:
 
         start = candle.start_time
         end = start + timedelta(seconds=tf)
-        ticks = self.tick_processor.get_ticks_in_range(symbol, start.timestamp(), end.timestamp())
+
+        # Gather ticks for this candle
+        ticks = [t for t in self.tick_buffer.get(symbol, []) if start.timestamp() <= t.timestamp < end.timestamp()]
 
         if ticks:
             prices = [t.ltp for t in ticks]
@@ -90,4 +101,19 @@ class CandleBuilder:
         await self.event_bus.publish("candle", candle)
 
         # Cleanup old ticks
-        self.tick_processor.cleanup_old_ticks(symbol, end.timestamp())
+        self.cleanup_old_ticks(symbol, end.timestamp())
+
+    def cleanup_old_ticks(self, symbol: str, cutoff: float) -> None:
+        if buf := self.tick_buffer.get(symbol):
+            while buf and buf[0].timestamp < cutoff:
+                buf.popleft()
+
+    def cleanup_inactive_symbols(self, current_time: float, ttl: int = 3600) -> int:
+        cutoff = current_time - ttl
+        inactive = [s for s, ts in self.last_tick_time.items() if ts < cutoff]
+        for symbol in inactive:
+            self.tick_buffer.pop(symbol, None)
+            self.last_tick_time.pop(symbol, None)
+            self.active.pop(symbol, None)
+            self.completion_tasks.pop(symbol, None)
+        return len(inactive)

@@ -1,7 +1,6 @@
 import asyncio
 from common_utils.logger import logger
 from common_utils.error_handling import error_handling
-from .tick_processor import TickProcessor
 from data_model.data_model import Tick
 from datetime import datetime
 from .candle_builder import CandleBuilder
@@ -11,13 +10,12 @@ from central_hub.event_bus import EventBus
 
 @error_handling
 class DataManager(IDataManager):
-    def __init__( self, event_bus: EventBus, data_broker: IBroker, order_broker: IBroker = None, tick_processor = TickProcessor, candle_builder = CandleBuilder):
+    def __init__( self, event_bus: EventBus, data_broker: IBroker, order_broker: IBroker = None, candle_builder = CandleBuilder):
         self.data_broker = data_broker
         self.order_broker = order_broker
         self.event_bus = event_bus
         self.symbols = {}
         self._running = False
-        self.tick_processor = tick_processor 
         self.candle_builder = candle_builder 
         self.tick_queue = asyncio.Queue(maxsize=1000)
 
@@ -80,8 +78,8 @@ class DataManager(IDataManager):
                     )
                     
                     if cfg["mode"] == "tick":
-                        await self.tick_processor.process_tick(tick, publish=True)
-                    elif await self.tick_processor.process_tick(tick, publish=False):
+                        await self.event_bus.publish("tick", tick)
+                    elif cfg["mode"] == "candle": 
                         await self.candle_builder.process_candle_tick(tick, cfg["timeframe"])
                 
                 case "positions":
