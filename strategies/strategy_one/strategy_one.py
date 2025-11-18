@@ -5,7 +5,7 @@ from strategies.strategy_interface import BaseStrategy
 from strategies.strategy_one.logic_manager import StrategyLogicManager
 from strategies.strategy_one.trailing_manager import TrailingManager
 from order_active_state_manager.order_state_manager import TradeManager
-from strategies.strategy_one.order_placement_manager import FyersOrderPlacement
+from order_placement_manager.order_placement_manager import FyersOrderPlacement
 from common_utils.error_handling import error_handling
 from common_utils.logger import logger
 
@@ -49,7 +49,7 @@ class StrategyOne(BaseStrategy):
 
         if net_qty == 0:  #--- TRADE CLOSE ----- 
             if self.active_trade_data_obj.order_id:
-                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25OCT24800CE")
+                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25NOV26100CE")
                 await self.order_state_manager.close_trade(self.active_trade_data_obj.order_id)
                 logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed | PNL: {realized}")
                 self.active_trade_data_obj = None
@@ -61,7 +61,7 @@ class StrategyOne(BaseStrategy):
         logger.info(f"Placed {active_order_id}")
         self.trades_done += 1
         main, stop, target = await self.fyers_order_placement.get_main_stop_target_orders(active_order_id)
-        self.ws_mgr.subscribe_symbol("NSE:NIFTY25OCT24800CE", mode="tick")
+        self.ws_mgr.subscribe_symbol("NSE:NIFTY25NOV26100CE", mode="tick")
         self.active_trade_data_obj = await self.order_state_manager.add_trade(
             self.trades_done, active_order_id, main, stop, target
         )
