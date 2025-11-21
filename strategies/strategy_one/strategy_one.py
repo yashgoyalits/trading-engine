@@ -80,9 +80,15 @@ class StrategyOne():
                         self.trades_done += 1
                         main, stop, target = await self.fyers_order_placement.get_main_stop_target_orders(order_response.get("id"))
                         self.ws_mgr.subscribe_symbol("NSE:NIFTY25NOV26100CE", mode="tick")
+                        
                         self.active_trade_data_obj = await self.order_state_manager.add_trade(
-                            self.trades_done, order_response.get("id"), main, stop, target
+                            self.trades_done, self.strategy_id, order_response.get("id")
                         )
+
+                        trade_details = await self.order_state_manager.compute_trade_fields(main, stop, target)
+                        
+                        await self.order_state_manager.update_trade(order_response.get("id"), trade_details)
+                        
                         logger.info(f"Order Placed {order_response.get("id")}")
                     else:
                         logger.info("Order is Not Placed")

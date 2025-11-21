@@ -7,18 +7,18 @@ class TradeData:
     trade_no: int
     strategy_id: str
     order_id: str
-    stop_order_id: str
-    target_order_id: str
-    symbol: str
-    position_id: str
-    qty: int
-    side: str
-    entry_price: Optional[float]
-    stop_price: Optional[float]
-    target_price: Optional[float]
-    sl_points: Optional[float]
-    target_points: Optional[float]
-    trailing_levels: List[Dict[str, Any]]
+    stop_order_id: Optional[str] = None
+    target_order_id: Optional[str] = None
+    symbol: Optional[str] = None
+    position_id: Optional[str] = None
+    qty: Optional[int] = None
+    side: Optional[str] = None
+    entry_price: Optional[float] = None
+    stop_price: Optional[float] = None
+    target_price: Optional[float] = None
+    sl_points: Optional[float] = None
+    target_points: Optional[float] = None
+    trailing_levels: List[Dict[str, Any]] | None = None
 
 @dataclass(slots=True)
 class Tick:
