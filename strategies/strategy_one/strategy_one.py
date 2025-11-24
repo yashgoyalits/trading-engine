@@ -7,9 +7,10 @@ from order_active_state_manager.order_state_manager import TradeManager
 from order_placement_manager.order_placement_manager import FyersOrderPlacement
 from common_utils.error_handling import error_handling
 from common_utils.logger import logger
+from strategies.strategy_interface import BaseStrategy
 
 @error_handling 
-class StrategyOne():
+class StrategyOne(BaseStrategy):
     def __init__(self, event_bus, strategy_id, ws_mgr, loop, max_trades=1):
         self.event_bus = event_bus
         self.strategy_id = strategy_id
@@ -50,7 +51,6 @@ class StrategyOne():
                 await self.order_state_manager.close_trade(active_trade.order_id)
                 logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed")
 
-
     # ------------------ Max Trade Check ------------------
     async def is_max_trade_reached(self):
         if self.trades_done >= self.max_trades:
@@ -60,7 +60,6 @@ class StrategyOne():
                     task.cancel()
             return True
         return False
-
 
     # ------------------ Consumers ------------------
     async def candle_consumer(self):
