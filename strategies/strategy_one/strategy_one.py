@@ -30,6 +30,26 @@ class StrategyOne():
         self.trades_done = 0
         self.active_trade_data_obj: TradeData | None = None
         self.tasks = []
+        self.pending_order_queue = asyncio.Queue()
+
+    async def process_orders(self, order, active_trade):
+        parent_id = order.get("parentId")
+        status = order.get("status")
+        order_id = order.get("id")
+        order_type = order.get("type")
+
+        if order_id == active_trade.order_id:  # Parent Order updates
+            if status == 2:
+                logger.info(f"Order Filled, ID: {order_id}") 
+                self.ws_mgr.subscribe_symbol("NSE:NIFTY25NOV26100CE", mode="tick")           
+
+        if parent_id == active_trade.order_id: # Child order updates
+            if status == 2:
+                logger.info(f"Child Order Filled, ID: {order_id} for Parent ID: {parent_id}")
+                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25NOV26100CE")
+                await self.order_state_manager.close_trade(active_trade.order_id)
+                logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed")
+
 
     # ------------------ Max Trade Check ------------------
     async def is_max_trade_reached(self):
@@ -40,21 +60,6 @@ class StrategyOne():
                     task.cancel()
             return True
         return False
-    
-    # ------------------ Position Management ------------------
-    async def manage_position(self, pos): 
-        active_symbol = pos.get("symbol")
-        net_qty = pos.get("netQty", 0)
-        realized = pos.get("realized_profit", 0)
-
-        if net_qty == 0:  #--- TRADE CLOSE ----- 
-            if self.active_trade_data_obj.order_id:
-                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25NOV26100CE")
-                await self.order_state_manager.close_trade(self.active_trade_data_obj.order_id)
-                logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed | PNL: {realized}")
-                self.active_trade_data_obj = None
-            else:
-                logger.info("No Order Found")
 
 
     # ------------------ Consumers ------------------
@@ -78,13 +83,11 @@ class StrategyOne():
                     )
                     if order_response.get('code') == 1101:
                         self.trades_done += 1
-                        main, stop, target = await self.fyers_order_placement.get_main_stop_target_orders(order_response.get("id"))
-                        self.ws_mgr.subscribe_symbol("NSE:NIFTY25NOV26100CE", mode="tick")
-                        
-                        self.active_trade_data_obj = await self.order_state_manager.add_trade(
-                            self.trades_done, self.strategy_id, order_response.get("id")
+                        await self.order_state_manager.add_trade(
+                            self.trades_done, self.strategy_id, order_response.get("id") 
                         )
 
+                        main, stop, target = await self.fyers_order_placement.get_main_stop_target_orders(order_response.get("id"))
                         trade_details = await self.order_state_manager.compute_trade_fields(main, stop, target)
                         
                         await self.order_state_manager.update_trade(order_response.get("id"), trade_details)
@@ -97,7 +100,7 @@ class StrategyOne():
         while True:
             tick = await self.tick_queue.get()
             active_trade = await self.order_state_manager.get_active_trade()
-            if active_trade:
+            if active_trade and active_trade.trailing_levels != []:
                 await self.trailing_manager.start_trailing_sl(
                     self.fyers_order_placement,
                     active_trade.trailing_levels,
@@ -106,28 +109,23 @@ class StrategyOne():
                     tick
                 )
             else:
-                logger.info("No active trade or trailing levels blank")
+                logger.info("No active trade or No trailing levels")
 
 
-    async def broker_postion_consumer(self):
-        while True:
-            pos = await self.trade_close_queue.get()  
-            await self.manage_position(pos)
-
-    async def broker_order_consumer(self):
+    async def orders_consumer(self):
         while True:
             order = await self.order_queue.get()
-            # logger.info(f"Order Update {order}")
-            # if order.get("parentId"):
-            #     if order.get("status") == 6:
-            #         logger.info(f"Child Order Pending: {order.get("id")}")
-            #     if order.get("status") == 2:
-            #         logger.info(f"Child Order Filled: {order.get("id")}")
-            # else:
-            #     if order.get("status") == 6:
-            #         logger.info(f"Parent Order Pending: {order.get("id")}")
-            #     if order.get("status") == 2:
-            #         logger.info(f"Parent Order Filled: {order.get("id")}")
+            active_trade = await self.order_state_manager.get_active_trade()
+
+            if not active_trade: # No active trade found
+                await self.pending_order_queue.put(order)
+                continue
+
+            while not self.pending_order_queue.empty(): # Process buffered orders
+                pending_order = await self.pending_order_queue.get()
+                await self.process_orders(pending_order, active_trade)
+
+            await self.process_orders(order, active_trade)    # Process current order
 
     # ------------------ Run ------------------
     async def run(self):
@@ -135,6 +133,5 @@ class StrategyOne():
             self.tasks = [
                 tg.create_task(self.candle_consumer()),
                 tg.create_task(self.tick_consumer()),
-                tg.create_task(self.broker_postion_consumer()),
-                tg.create_task(self.broker_order_consumer()),
+                tg.create_task(self.orders_consumer()),
             ]
