@@ -42,12 +42,12 @@ class StrategyOne(BaseStrategy):
         if order_id == active_trade.order_id:  # Parent Order updates
             if status == 2:
                 logger.info(f"Order Filled, ID: {order_id}") 
-                self.ws_mgr.subscribe_symbol("NSE:NIFTY25NOV26100CE", mode="tick")           
+                self.ws_mgr.subscribe_symbol("NSE:NIFTY25D0926000CE", mode="tick")           
 
         if parent_id == active_trade.order_id: # Child order updates
             if status == 2:
                 logger.info(f"Child Order Filled, ID: {order_id} for Parent ID: {parent_id}")
-                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25NOV26100CE")
+                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25D0926000CE")
                 await self.order_state_manager.close_trade(active_trade.order_id)
                 logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed")
 

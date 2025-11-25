@@ -5,15 +5,24 @@ from data_model.data_model import Tick
 @error_handling
 class TrailingManager:
     async def start_trailing_sl(self, fyers_order_placement, trailing_levels, stop_order_id, qty, tick: Tick):
-        tick_ltp = tick.ltp
-        if tick_ltp is None or not trailing_levels or not stop_order_id:
-            return
+        if tick.ltp is None:
+            logger.info("LTP is None")
+            return 
+        if trailing_levels is None:
+            logger.info("No trailing levels")
+            return 
+        if stop_order_id is None:
+            logger.info("No stop order id")
+            return 
+        if qty is None:
+            logger.info("No qty")
+            return 
 
         for level in trailing_levels:
             if level.get("hit"):
                 continue
 
-            if tick_ltp > level.get("threshold", float("inf")):
+            if tick.ltp > level.get("threshold", float("inf")):
                 res = await fyers_order_placement.modify_order(
                     stop_order_id,
                     order_type=4,
@@ -24,5 +33,6 @@ class TrailingManager:
 
                 if res.get('code') == 1102:
                     level["hit"] = True  # Mark as triggered
-                    logger.info(f"Trailing SL updated | {level.get('msg')} LTP: {tick_ltp}")
-                    break  # Only trigger one level per tick
+                    logger.info(f"Trailing SL updated | {level.get('msg')} | LTP: {tick.ltp}")
+                else:
+                    logger.error(f"Failed to update trailing SL | {res}")
