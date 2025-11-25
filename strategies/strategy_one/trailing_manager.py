@@ -4,7 +4,7 @@ from data_model.data_model import Tick
 
 @error_handling
 class TrailingManager:
-    async def start_trailing_sl(self, fyers_order_placement, trailing_levels, stop_order_id, qty, tick: Tick):
+    async def start_trailing_sl(self, FyersOrderPlacement, trailing_levels, stop_order_id, qty, tick: Tick):
         if tick.ltp is None:
             logger.info("LTP is None")
             return 
@@ -23,7 +23,7 @@ class TrailingManager:
                 continue
 
             if tick.ltp > level.get("threshold", float("inf")):
-                res = await fyers_order_placement.modify_order(
+                res = await FyersOrderPlacement.modify_order(
                     stop_order_id,
                     order_type=4,
                     limit_price=level.get("new_stop"),

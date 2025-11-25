@@ -3,7 +3,7 @@ import asyncio
 from data_model.data_model import TradeData
 from strategies.strategy_one.logic_manager import StrategyLogicManager
 from strategies.strategy_one.trailing_manager import TrailingManager
-from order_active_state_manager.order_state_manager import TradeManager
+from order_active_state_manager.order_state_manager import ActiveTradesManager
 from order_placement_manager.order_placement_manager import FyersOrderPlacement
 from common_utils.error_handling import error_handling
 from common_utils.logger import logger
@@ -18,10 +18,10 @@ class StrategyOne(BaseStrategy):
         self.loop = loop
         self.max_trades = max_trades
 
-        self.order_state_manager = TradeManager(event_bus, strategy_id)
-        self.strategy_logic_manager = StrategyLogicManager()
-        self.fyers_order_placement = FyersOrderPlacement()
-        self.trailing_manager = TrailingManager()
+        self.ActiveTradesManager = ActiveTradesManager(event_bus, strategy_id)
+        self.StrategyLogicManager = StrategyLogicManager()
+        self.FyersOrderPlacement = FyersOrderPlacement()
+        self.TrailingManager = TrailingManager()
 
         self.candle_queue = self.event_bus.subscribe("candle")
         self.tick_queue = self.event_bus.subscribe("tick")
@@ -48,7 +48,7 @@ class StrategyOne(BaseStrategy):
             if status == 2:
                 logger.info(f"Child Order Filled, ID: {order_id} for Parent ID: {parent_id}")
                 self.ws_mgr.unsubscribe_symbol("NSE:NIFTY25D0926000CE")
-                await self.order_state_manager.close_trade(active_trade.order_id)
+                await self.ActiveTradesManager.close_trade(active_trade.order_id)
                 logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed")
 
     # ------------------ Max Trade Check ------------------
@@ -64,32 +64,32 @@ class StrategyOne(BaseStrategy):
     # ------------------ Consumers ------------------
     async def candle_consumer(self):
         # Skip first candle
-        _ = await self.candle_queue.get()
+        # _ = await self.candle_queue.get()
         logger.info("skipped candle")
 
         while True:
             candle = await self.candle_queue.get()
-            active_trade = await self.order_state_manager.get_active_trade()
+            active_trade = await self.ActiveTradesManager.get_active_trade()
             if active_trade is None:
                 if await self.is_max_trade_reached():
                     break  
-                condition_met = await self.strategy_logic_manager.check_entry_condition(
+                condition_met = await self.StrategyLogicManager.check_entry_condition(
                     self.strategy_id, candle.symbol, candle
                 )
                 if condition_met:
-                    order_response = await self.fyers_order_placement.place_order(
+                    order_response = await self.FyersOrderPlacement.place_order(
                         symbol="NSE:IDEA-EQ", qty=1, order_type=2, side=1, stop_loss=0.5, take_profit=2.0
                     )
                     if order_response.get('code') == 1101:
                         self.trades_done += 1
-                        await self.order_state_manager.add_trade(
+                        await self.ActiveTradesManager.add_trade(
                             self.trades_done, self.strategy_id, order_response.get("id") 
                         )
 
-                        main, stop, target = await self.fyers_order_placement.get_main_stop_target_orders(order_response.get("id"))
-                        trade_details = await self.order_state_manager.compute_trade_fields(main, stop, target)
+                        main, stop, target = await self.FyersOrderPlacement.get_main_stop_target_orders(order_response.get("id"))
+                        trade_details = await self.ActiveTradesManager.compute_trade_fields(main, stop, target)
                         
-                        await self.order_state_manager.update_trade(order_response.get("id"), trade_details)
+                        await self.ActiveTradesManager.update_trade(order_response.get("id"), trade_details)
                         
                         logger.info(f"Order Placed {order_response.get("id")}")
                     else:
@@ -98,10 +98,10 @@ class StrategyOne(BaseStrategy):
     async def tick_consumer(self):
         while True:
             tick = await self.tick_queue.get()
-            active_trade = await self.order_state_manager.get_active_trade()
+            active_trade = await self.ActiveTradesManager.get_active_trade()
             if active_trade and active_trade.trailing_levels != []:
-                await self.trailing_manager.start_trailing_sl(
-                    self.fyers_order_placement,
+                await self.TrailingManager.start_trailing_sl(
+                    self.FyersOrderPlacement,
                     active_trade.trailing_levels,
                     active_trade.stop_order_id, 
                     active_trade.qty,
@@ -114,7 +114,7 @@ class StrategyOne(BaseStrategy):
     async def orders_consumer(self):
         while True:
             order = await self.order_queue.get()
-            active_trade = await self.order_state_manager.get_active_trade()
+            active_trade = await self.ActiveTradesManager.get_active_trade()
 
             if not active_trade: # No active trade found
                 await self.pending_order_queue.put(order)

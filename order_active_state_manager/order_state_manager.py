@@ -4,7 +4,7 @@ from common_utils.error_handling import error_handling
 from data_model.data_model import TradeData
 
 @error_handling
-class TradeManager:
+class ActiveTradesManager:
     def __init__(self, event_bus, strategy_id: str):
         self.event_bus = event_bus
         self.strategy_id = strategy_id
