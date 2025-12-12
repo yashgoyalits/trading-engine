@@ -14,9 +14,9 @@ class DataManager(IDataManager):
         self.data_broker = data_broker
         self.order_broker = order_broker
         self.event_bus = event_bus
+        self.candle_builder = candle_builder 
         self.symbols = {}
         self._running = False
-        self.candle_builder = candle_builder 
         self.tick_queue = asyncio.Queue(maxsize=1000)
 
     async def start(self):
@@ -91,6 +91,7 @@ class DataManager(IDataManager):
                 
                 case "positions_data":
                     await self.event_bus.publish("fyers_position_update", raw_data["data"])
+                
                 case "orders_data":
                     await self.event_bus.publish("fyers_order_update", raw_data["data"])
 
