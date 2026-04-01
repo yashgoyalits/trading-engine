@@ -87,7 +87,7 @@ class StrategyOne:
                             {"trailing_levels": trailing}
                         )
 
-                self.ws_mgr.subscribe_symbol("NSE:NIFTY2631024800CE", mode="tick")
+                self.ws_mgr.subscribe_symbol("NSE:NIFTY2640723000CE", mode="tick")
 
         # ---------------- Child order updates ----------------
         if parent_id == active_trade.order_id:  # Child order updates
@@ -123,7 +123,7 @@ class StrategyOne:
             # Any child filled -> close trade (keep existing behavior)
             if status == 2:
                 logger.info(f"Child Order Filled, Child Order ID: {order_id} for Parent ID: {parent_id}")
-                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY2631024800CE")
+                self.ws_mgr.unsubscribe_symbol("NSE:NIFTY2640723000CE")
                 await self.ActiveTradesManager.close_trade(active_trade.order_id)
                 logger.info(f"[{self.strategy_id}] | Trade {self.trades_done} closed")
 
