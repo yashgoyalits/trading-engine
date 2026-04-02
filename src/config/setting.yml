@@ -1,5 +1,0 @@
-STRATEGY_ONE = {
-    "max_trades": 1,
-    "symbol": "NSE:NIFTY2632423200CE",
-    "timeframe": 30,
-}
