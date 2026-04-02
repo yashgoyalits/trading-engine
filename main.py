@@ -1,4 +1,5 @@
 import asyncio
+import uvloop
 from src.broker.fyers.data_broker import FyersDataBroker
 from src.broker.fyers.order_broker import FyersOrderPositionTracker
 from src.managers.data_manager import DataManager
@@ -53,4 +54,8 @@ async def main():
     os._exit(0)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    uvloop.install()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Manual Interrupted")
