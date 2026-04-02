@@ -2,8 +2,8 @@ import asyncio
 import uvloop
 from src.broker.fyers.data_broker import FyersDataBroker
 from src.broker.fyers.order_broker import FyersOrderPositionTracker
-from src.managers.data_manager import DataManager
-from src.managers.candle_builder.candle_builder import CandleBuilder
+from src.adapter.fyers.fyers_adapter import FyersAdapter
+from src.candle_builder.candle_builder import CandleBuilder
 from src.strategies.strategy_one.strategy_handler import StrategyOne
 from src.infrastructure.event_bus import EventBus
 from src.utils.csv_builder import CSVBuilder
@@ -25,7 +25,7 @@ async def main():
     event_bus = EventBus()
     csv_builder = CSVBuilder(event_bus)
     candle_builder = CandleBuilder(event_bus=event_bus)
-    ws_mgr = DataManager(event_bus=event_bus, data_broker=data_socket, order_broker=position_order_socket, candle_builder=candle_builder)
+    ws_mgr = FyersAdapter(event_bus=event_bus, data_broker=data_socket, order_broker=position_order_socket, candle_builder=candle_builder)
     
     await ws_mgr.start()
     
