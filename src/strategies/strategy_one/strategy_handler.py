@@ -10,11 +10,10 @@ from src.infrastructure.logger import logger
 
 @error_handling 
 class StrategyOne:
-    def __init__(self, event_bus, strategy_id, ws_mgr, loop, max_trades=1):
+    def __init__(self, event_bus, strategy_id, ws_mgr, max_trades=1):
         self.event_bus = event_bus
         self.strategy_id = strategy_id
         self.ws_mgr = ws_mgr
-        self.loop = loop
         self.max_trades = max_trades
 
         self.ActiveTradesManager = ActiveTradesManager(event_bus, strategy_id)
