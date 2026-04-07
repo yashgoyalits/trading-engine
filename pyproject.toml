@@ -9,6 +9,7 @@ dependencies = [
     "fyers-apiv3==3.1.7",
     "numpy>=2.4.2",
     "psutil==7.0.0",
+    "pyotp>=2.9.0",
     "python-dotenv==1.1.1",
     "pyyaml>=6.0.3",
     "setuptools==68.2.2",
