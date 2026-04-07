@@ -1,0 +1,11 @@
+# src/config.yml
+
+broker: fyers          # ← yahan change karo, code nahi
+
+strategies:
+  - name: strategy_one
+    symbols:
+      - symbol: "NSE:NIFTY50-INDEX"
+        mode: candle
+        timeframe: 30
+    max_trades: 1
