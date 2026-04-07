@@ -4,7 +4,7 @@ from src.broker.fyers.data_broker import FyersDataBroker
 from src.broker.fyers.order_broker import FyersOrderPositionTracker
 from src.adapter.fyers.fyers_adapter import FyersAdapter
 from src.candle_builder.candle_builder import CandleBuilder
-from src.strategies.strategy_one.strategy_handler import StrategyOne
+from src.strategies.strategy_handler import StrategyHandler
 from src.infrastructure.event_bus import EventBus
 from src.utils.csv_builder import CSVBuilder
 from src.infrastructure.error_handling import error_handling
@@ -33,7 +33,7 @@ async def main():
     logger.info("ALL RESOURCES SUBSCRIBED")
     
     # Run strategy
-    strategy_one = StrategyOne(event_bus, "STRATEGY_ONE", ws_mgr, max_trades=1)
+    strategy_one = StrategyHandler(event_bus, "STRATEGY_ONE", ws_mgr, max_trades=1)
     
     await asyncio.gather(
         strategy_one.run()

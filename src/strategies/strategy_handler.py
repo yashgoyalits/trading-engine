@@ -9,7 +9,7 @@ from src.infrastructure.error_handling import error_handling
 from src.infrastructure.logger import logger
 
 @error_handling 
-class StrategyOne:
+class StrategyHandler:
     def __init__(self, event_bus, strategy_id, ws_mgr, max_trades=1):
         self.event_bus = event_bus
         self.strategy_id = strategy_id
