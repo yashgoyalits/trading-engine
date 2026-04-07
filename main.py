@@ -20,12 +20,10 @@ async def main():
     
     logger.info("ALGO STARTED")
 
-    data_socket = FyersDataBroker()
-    position_order_socket = FyersOrderPositionTracker()
     event_bus = EventBus()
     csv_builder = CSVBuilder(event_bus)
     candle_builder = CandleBuilder(event_bus=event_bus)
-    ws_mgr = FyersAdapter(event_bus=event_bus, data_broker=data_socket, order_broker=position_order_socket, candle_builder=candle_builder)
+    ws_mgr = FyersAdapter(event_bus=event_bus, candle_builder=candle_builder)
     
     await ws_mgr.start()
     

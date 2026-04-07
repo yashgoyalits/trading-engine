@@ -6,17 +6,19 @@ from src.broker.fyers.ibroker import IBroker
 from src.infrastructure.event_bus import EventBus
 from src.infrastructure.logger import logger
 from src.infrastructure.error_handling import error_handling
+from src.broker.fyers.data_broker import FyersDataBroker
+from src.broker.fyers.order_broker import FyersOrderPositionTracker
 
 @error_handling
 class FyersAdapter:
-    def __init__( self, event_bus: EventBus, data_broker: IBroker, order_broker: IBroker = None, candle_builder = CandleBuilder):
-        self.data_broker = data_broker
-        self.order_broker = order_broker
+    def __init__( self, event_bus: EventBus, candle_builder = CandleBuilder):
         self.event_bus = event_bus
         self.candle_builder = candle_builder 
         self.symbols = {}
         self._running = False
         self.tick_queue = asyncio.Queue(maxsize=1000)
+        self.data_broker = FyersDataBroker()
+        self.order_broker = FyersOrderPositionTracker()
 
     async def start(self):
         if self._running:
