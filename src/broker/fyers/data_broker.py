@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fyers_apiv3.FyersWebsocket import data_ws
 from src.infrastructure.logger import logger
 from src.infrastructure.error_handling import error_handling
+from src.broker.writer import TickManager
 
 load_dotenv()
 
@@ -39,7 +40,8 @@ class FyersDataBroker:
 
         def _on_message(message):
             if message["type"] == "if":
-                #function_call
+                tick_manager = TickManager()
+                tick_manager.write(message)
                 if self._running and self._queue:
                     asyncio.run_coroutine_threadsafe(self._queue.put({"type": "raw_tick_data", "data": message}), self._loop)
 

@@ -1,8 +1,15 @@
 # shm_config.py
 
-# --- TICK CONFIG ---
-TICK_SHM_PATH = "/tmp/tick_data"
-TICK_SLOT     = 256  # Per Symbol
+MAX_SYMBOLS = 1000
+SLOT_SIZE = 256
+SHM_PATH = "/tmp/tick_data"
+
+# DHAYAN DEIN: Yahan ':' use hoga aur values integers honi chahiye
+SYMBOLS = {
+    "NSE:NIFTY50-INDEX": 0,
+    "NSE:BANKNIFTY-INDEX": 256
+}
+
 
 # --- CANDLE CONFIG ---
 CANDLE_SHM_PATH = "/tmp/candle_data"

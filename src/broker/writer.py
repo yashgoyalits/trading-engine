@@ -2,70 +2,47 @@ import orjson
 import struct
 import mmap
 import os
+import shm_config as config
 
 class TickManager:
-    # Define the binary format: q (seq), dddd d (prices), q (time)
-    # Total 56 bytes per slot
-    TICK_STRUCT = struct.Struct("<qdddddq")
-    SLOT_SIZE = 256
+    TICK_STRUCT = struct.Struct("<qqdddddq")
 
-    def __init__(self, shm_path="/tmp/tick_shm", symbols=None):
-        self.shm_path = shm_path
-        self.symbols = symbols
-        self.symbol_offsets = {sym: i * self.SLOT_SIZE for i, sym in enumerate(self.symbols)}
-        
-        self._shm_size = self.SLOT_SIZE * len(self.symbols)
+    def __init__(self):
+        self.shm_path = config.SHM_PATH
+        self.slot_size = config.SLOT_SIZE
+        self._shm_size = self.slot_size * config.MAX_SYMBOLS
+        self.symbol_offsets = config.SYMBOLS.copy()
+
+        # Next Slot Index: ab tick_base se calculate hoga
+        existing = [v["tick_base"] for v in self.symbol_offsets.values()]
+        self._next_slot_idx = (max(existing) // self.slot_size) + 1 if existing else 0
+
         self._setup_shm()
 
     def _setup_shm(self):
-        # Create file if not exists
         if not os.path.exists(self.shm_path):
             with open(self.shm_path, "wb") as f:
                 f.write(b'\x00' * self._shm_size)
-        
         self.fd = open(self.shm_path, "r+b")
         self.buf = mmap.mmap(self.fd.fileno(), self._shm_size)
 
     def write(self, message):
-        # 1. Fast Validation & Parsing
-        if not message: return
-        
-        try:
-            if isinstance(message, (bytes, bytearray, str)):
-                data = orjson.loads(message)
-            else:
-                data = message
-            
-            if data.get('type') not in ('if', 'sf'): return
-            
-            symbol = data.get('symbol')
-            base = self.symbol_offsets.get(symbol)
-            if base is None: return
+        # Fyers already parsed dict deta hai, orjson sirf bytes/str handle karta hai
+        data = message if isinstance(message, dict) else orjson.loads(message)
 
-            # 2. Prepare Data
-            # Read current sequence
-            curr_seq = struct.unpack_from("<q", self.buf, base)[0]
-            
-            # 3. Atomic-like Write (Seqlock)
-            # Mark as "Writing" (Odd number)
-            struct.pack_into("<q", self.buf, base, curr_seq + 1)
-            
-            # Write all fields in one block (Offsets 8 to 56)
-            self.TICK_STRUCT.pack_into(
-                self.buf, base,
-                curr_seq + 2, # Final sequence (Even number)
-                data['ltp'],
-                data['high_price'],
-                data['low_price'],
-                data['open_price'],
-                data['prev_close_price'],
-                data['exch_feed_time']
-            )
+        base = self.symbol_offsets[data['symbol']]["tick_base"]
 
-        except (orjson.JSONDecodeError, KeyError, TypeError) as e:
-            print(f"[WARN] TickWrite Error: {e}")
+        curr_seq = struct.unpack_from("<q", self.buf, base)[0]
+        struct.pack_into("<q", self.buf, base, curr_seq + 1)
 
-    def close(self):
-        self.buf.close()
-        self.fd.close()
-
+        self.TICK_STRUCT.pack_into(
+            self.buf, base,
+            curr_seq + 2,
+            data['exch_feed_time'],
+            data['ltp'],
+            data['open_price'],
+            data['high_price'],
+            data['low_price'],
+            data['prev_close_price'],
+            0
+        )
