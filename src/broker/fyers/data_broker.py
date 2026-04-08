@@ -39,9 +39,7 @@ class FyersDataBroker:
             logger.info("Fyers Data Websocket Connected")
 
         def _on_message(message):
-            if message["type"] == "if":
-                tick_manager = TickManager()
-                tick_manager.write(message)
+            if message["type"] == "if" or message["type"] == "sf":
                 if self._running and self._queue:
                     asyncio.run_coroutine_threadsafe(self._queue.put({"type": "raw_tick_data", "data": message}), self._loop)
 
